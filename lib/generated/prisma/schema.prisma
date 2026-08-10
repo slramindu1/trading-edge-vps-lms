@@ -1,0 +1,277 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum StudentType {
+  FREE
+  PAID
+}
+
+enum LessonType {
+  VIDEO
+  PDF
+}
+
+enum CourseStatus {
+  Draft
+  Published
+  Archived
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+model EmailVerification {
+  id        String   @id @default(uuid())
+  email     String
+  otp       String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+model User {
+  id                 String      @id @default(uuid())
+  email              String      @unique
+  fname              String
+  lname              String
+  password           String?
+  mobile             String?
+  joined_date        DateTime    @default(now())
+  verification_code  String? // reset token
+  reset_token_expiry DateTime? // token expiry
+  gender_id          Int?
+  user_type_id       Int
+  status_id          Int
+  aboutMe            String?     @db.VarChar(500)
+  student_type       StudentType @default(FREE)
+
+  // Profile fields
+  profile_completed  Boolean   @default(false)
+  profile_updated_at DateTime?
+  profile_image      String? // profile photo URL
+
+  // Payment fields
+  is_paid      Boolean   @default(false)
+  payment_date DateTime?
+
+  enrollments    Enrollment[]
+  LessonProgress LessonProgress[]
+  lockedContent  LockedContent[]
+  sessions       UserSession[]
+  devices        UserDevice[]
+}
+
+model UserSession {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token      String   @unique // unique session token
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+model Section {
+  id               String       @id @default(uuid())
+  title            String
+  description      String
+  dateCreated      DateTime     @default(now())
+  fileKey          String
+  smallDescription String
+  slug             String       @unique
+  status           CourseStatus @default(Draft)
+
+  chapters    Chapter[]
+  enrollments Enrollment[]
+}
+
+model Chapter {
+  id               String   @id @default(uuid())
+  title            String
+  position         Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  fileKey          String?
+  description      String?
+  smallDescription String?
+  section          Section  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  sectionId        String
+
+  topics  Topic[]
+  lessons Lesson[] // keep for backwards compatibility: lessons may belong to chapter directly
+}
+
+model Topic {
+  id        String   @id @default(uuid())
+  title     String
+  position  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapterId String
+
+  lessons Lesson[]
+}
+
+model Coupon {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  discount  Float
+  maxUses   Int?
+  usedCount Int       @default(0)
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+
+  @@map("coupons")
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  email       String
+  fullName    String
+  amount      Float
+  discount    Float         @default(0)
+  finalAmount Float
+  couponCode  String?
+  paymentDate DateTime      @default(now())
+  slipUrl     String?
+  status      PaymentStatus @default(PENDING)
+  completedAt DateTime?
+  notes       String?
+
+  @@map("payments")
+}
+
+model Lesson {
+  id            String      @id @default(uuid())
+  title         String
+  description   String?
+  thumbnailUrl  String?
+  videoUrl      String?
+  pdfUrl        String?
+  lessonType    LessonType?
+  videoDuration String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  chapter   Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapterId String
+
+  topic   Topic?  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  topicId String?
+
+  position Int
+
+  LessonProgress LessonProgress[]
+}
+
+model Enrollment {
+  id String @id @default(uuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  sectionId String
+
+  createdAt DateTime @default(now())
+}
+
+model LessonProgress {
+  id        String   @id @default(uuid())
+  completed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  User     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  lessons  Lesson @relation(fields: [LessonId], references: [id], onDelete: Cascade)
+  LessonId String
+
+  @@unique([userId, LessonId])
+}
+
+model PageSection {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  name      String
+  elements  Json     @default("[]")
+  canvasH   Int      @default(800)
+  canvasW   Int      @default(1200)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LockedContent {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  entityId   String
+  entityType String // Can be "SECTION", "CHAPTER", "TOPIC", "LESSON"
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, entityId, entityType])
+}
+
+model UserDevice {
+  id        String   @id @default(uuid())
+  deviceId  String   @unique // Long-lived cookie value
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userAgent String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+  lastUsed  DateTime @default(now())
+
+  @@index([userId])
+}
+
+model DeviceVerification {
+  id        String   @id @default(uuid())
+  email     String
+  otp       String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+model FeatureFlag {
+  id         String    @id @default(uuid())
+  featureKey String    @unique // e.g. "chapter-locking", "certificate-tool"
+  enabled    Boolean   @default(false)
+  version    String?
+  enabledAt  DateTime?
+  enabledBy  String? // email of who enabled it
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model UpdateHistory {
+  id          String   @id @default(uuid())
+  featureKey  String
+  action      String // "INSTALLED" | "ROLLED_BACK"
+  version     String
+  performedBy String // admin email
+  createdAt   DateTime @default(now())
+}

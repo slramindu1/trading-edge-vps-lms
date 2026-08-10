@@ -13,6 +13,7 @@ type FeatureFlag = {
   version: string | null;
   enabledAt: Date | null;
   enabledBy: string | null;
+  availableAt?: Date | null;
 };
 
 type UpdateHistory = {

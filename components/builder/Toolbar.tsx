@@ -18,26 +18,7 @@ export function Toolbar() {
     pushHistory();
     setCanvasW(1200);
     
-    const layout: BuilderElement[] = [
-      {
-        id: "text_1", type: "heading", name: "Heading 1", text: "Our Result", 
-        x: 400, y: 50, width: 400, height: 40,
-        fontSize: 16, fontWeight: 700, color: "#3b82f6", textAlign: "center",
-        rotation: 0, opacity: 1, zIndex: 10, borderRadius: 0, shadow: false, visible: true, locked: false
-      },
-      {
-        id: "text_2", type: "heading", name: "Heading 2", text: "We worked with thousands of amazing people", 
-        x: 200, y: 100, width: 800, height: 80,
-        fontSize: 36, fontWeight: 700, color: "#000000", textAlign: "center",
-        rotation: 0, opacity: 1, zIndex: 10, borderRadius: 0, shadow: false, visible: true, locked: false
-      },
-      {
-        id: "text_3", type: "text", name: "Subtitle", text: "You Can Read And Understand Our Student Comments", 
-        x: 300, y: 180, width: 600, height: 40,
-        fontSize: 16, fontWeight: 400, color: "#6b7280", textAlign: "center",
-        rotation: 0, opacity: 1, zIndex: 10, borderRadius: 0, shadow: false, visible: true, locked: false
-      }
-    ];
+    const layout: BuilderElement[] = [];
 
     const images = [
       "/assets/5.jpg", "/assets/new3.jpg", "/assets/new7.jpg", "/assets/4.jpg", "/assets/new10.jpg", "/assets/new13.jpg", 
@@ -49,7 +30,7 @@ export function Toolbar() {
     const colWidth = 340;
     const gap = 20;
     const startX = 60;
-    let yOffsets = [260, 260, 260];
+    let yOffsets = [20, 20, 20];
 
     images.forEach((src, i) => {
       const currentY = yOffsets[col];

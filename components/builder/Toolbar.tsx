@@ -7,11 +7,69 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export function Toolbar() {
   const { setElements, setSelectedElementId, pushHistory, elements, leftPanel, setLeftPanel,
-    selectedElementId, toggleVisibility, toggleLock, moveLayerUp, moveLayerDown, canvasW, canvasH } = useBuilder();
+    selectedElementId, toggleVisibility, toggleLock, moveLayerUp, moveLayerDown, canvasW, canvasH, setCanvasW, setCanvasH } = useBuilder();
   const [searchQuery, setSearchQuery] = useState("");
+
+  const loadDefaultLayout = () => {
+    pushHistory();
+    setCanvasW(1200);
+    
+    const layout: BuilderElement[] = [
+      {
+        id: "text_1", type: "heading", name: "Heading 1", text: "Our Result", 
+        x: 400, y: 50, width: 400, height: 40,
+        fontSize: 16, fontWeight: 700, color: "#3b82f6", textAlign: "center",
+        rotation: 0, opacity: 1, zIndex: 10, borderRadius: 0, shadow: false, visible: true, locked: false
+      },
+      {
+        id: "text_2", type: "heading", name: "Heading 2", text: "We worked with thousands of amazing people", 
+        x: 200, y: 100, width: 800, height: 80,
+        fontSize: 36, fontWeight: 700, color: "#000000", textAlign: "center",
+        rotation: 0, opacity: 1, zIndex: 10, borderRadius: 0, shadow: false, visible: true, locked: false
+      },
+      {
+        id: "text_3", type: "text", name: "Subtitle", text: "You Can Read And Understand Our Student Comments", 
+        x: 300, y: 180, width: 600, height: 40,
+        fontSize: 16, fontWeight: 400, color: "#6b7280", textAlign: "center",
+        rotation: 0, opacity: 1, zIndex: 10, borderRadius: 0, shadow: false, visible: true, locked: false
+      }
+    ];
+
+    const images = [
+      "/5.jpg", "/new3.jpg", "/new7.jpg", "/4.jpg", "/new10.jpg", "/new13.jpg", 
+      "/new1.jpg", "/new4.jpg", "/new5.jpg", "/new8.jpg", "/new11.jpg", "/11.jpg", 
+      "/new2.jpg", "/new6.jpg", "/new9.jpg", "/new12.jpg", "/new14.jpg"
+    ];
+
+    let col = 0;
+    const colWidth = 340;
+    const gap = 20;
+    const startX = 60;
+    let yOffsets = [260, 260, 260];
+
+    images.forEach((src, i) => {
+      const currentY = yOffsets[col];
+      const width = colWidth;
+      const height = 450; 
+      
+      layout.push({
+        id: `img_${i}`, type: "image", name: `Image ${i+1}`, imageUrl: src,
+        x: startX + col * (colWidth + gap), y: currentY, width, height,
+        rotation: 0, opacity: 1, zIndex: 1, borderRadius: 16, shadow: true, visible: true, locked: false
+      });
+      
+      yOffsets[col] += height + gap;
+      col = (col + 1) % 3;
+    });
+
+    const maxH = Math.max(...yOffsets) + 100;
+    setCanvasH(maxH);
+    setElements(layout);
+  };
 
   const addElement = (type: BuilderElement["type"]) => {
     pushHistory();
@@ -155,6 +213,18 @@ export function Toolbar() {
 
           {/* Keyboard Shortcuts Help */}
           <div className="mt-auto pt-4 border-t border-border">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full mb-4 text-[11px]"
+              onClick={() => {
+                if (confirm("This will replace your current layout. Are you sure?")) {
+                  loadDefaultLayout();
+                }
+              }}
+            >
+              Load Default Design
+            </Button>
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2">Shortcuts</p>
             <div className="space-y-1.5 text-[11px] text-muted-foreground">
               <div className="flex justify-between"><span>Copy</span><kbd className="px-1.5 py-0.5 rounded bg-muted text-[10px] font-mono">Ctrl+C</kbd></div>

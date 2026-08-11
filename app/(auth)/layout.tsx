@@ -8,7 +8,7 @@ import Image from "next/image";
 import { Toaster } from "sonner"; // ← Add this line
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
-  const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL || "/";
+  const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL || "https://tradingedgefx.com";
 
   return (
     <div className="relative flex min-h-svh flex-col items-center justify-center">

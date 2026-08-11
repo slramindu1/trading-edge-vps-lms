@@ -27,21 +27,21 @@ export default async function SectionPage({
     getUserLockedContent(session.user.id)
   ]);
 
-  if (!sectionData || isLocked(userLocks, sectionData.id, "SECTION")) {
+  if (!sectionData) {
     return (
       <EmptyState
         title="Access Denied"
-        description="You do not have access to this course."
+        description="Course not found."
         buttonText="Back to Dashboard"
         href="/dashboard"
       />
     );
   }
 
-  // Filter out locked chapters
-  const availableChapters = sectionData.chapters?.filter(
-    (chapter: ChapterType) => !isLocked(userLocks, chapter.id, "CHAPTER")
-  ) || [];
+  const isSectionLocked = isLocked(userLocks, sectionData.id, "SECTION");
+
+  // Filter out locked chapters ONLY IF the user explicitly shouldn't see them? No, we WANT to see them faded!
+  const availableChapters = sectionData.chapters || [];
 
   if (availableChapters.length === 0) {
     return (
@@ -85,6 +85,7 @@ export default async function SectionPage({
             key={chapter.id}
             section={sectionData} // pass full section
             chapter={chapter} // current chapter
+            isLocked={isSectionLocked || isLocked(userLocks, chapter.id, "CHAPTER")}
           />
         ))}
       </div>

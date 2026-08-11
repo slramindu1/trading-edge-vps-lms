@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/getSession";
 import { EmptyState } from "@/components/general/EmptyState";
 import { getEnrolledCourses } from "../data/user/get-enrolled-courses";
+import { getUserLockedContent, isLocked } from "@/app/data/user/check-access";
 import { CourseProgressCard } from "@/app/dashboard/_components/CourseProgressCard";
 import { DiscordCard } from "./_components/DiscordCard";
 
@@ -21,7 +22,10 @@ export default async function DashboardPage() {
   }
 
   // Now fetch courses since user is authenticated and profile is complete
-  const [enrolledCourses] = await Promise.all([getEnrolledCourses()]);
+  const [enrolledCourses, userLocks] = await Promise.all([
+    getEnrolledCourses(),
+    getUserLockedContent(session.user.id)
+  ]);
 
   return (
     <>
@@ -59,6 +63,7 @@ export default async function DashboardPage() {
                 <CourseProgressCard
                   key={enrollment.section.id}
                   data={enrollment.section}
+                  isLocked={isLocked(userLocks, enrollment.section.id, "SECTION")}
                 />
               ))
             )}

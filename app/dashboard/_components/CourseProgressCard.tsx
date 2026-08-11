@@ -7,32 +7,45 @@ import { useCourseProgress } from "@/hooks/use-course-progress";
 import Image from "next/image";
 import Link from "next/link";
 
+import { Lock } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 interface iAppProps {
   data: SectionType; // <-- You are receiving only the SECTION
+  isLocked?: boolean;
 }
 
-export function CourseProgressCard({ data }: iAppProps) {
+export function CourseProgressCard({ data, isLocked }: iAppProps) {
   const section = data; // <-- FIX: This is already the section
 
   const { totalLessons, completedLessons, progressPercentage } =
     useCourseProgress({ courseData: section });
 
   return (
-    <Card className="group relative py-0 gap-0">
-      <Link href={`/dashboard/sections/${section.slug}/chapters`}>
-        <Image
-          src={section.fileKey}
-          alt="Course Thumbnail"
-          width={600}
-          height={400}
-          className="w-full rounded-t-lg aspect-video h-full object-cover"
-          unoptimized
-        />
+    <Card className={cn("group relative py-0 gap-0 transition-all", isLocked && "opacity-60")}>
+      <Link href={isLocked ? "#" : `/dashboard/sections/${section.slug}/chapters`} className={cn(isLocked && "pointer-events-none")}>
+        <div className="relative">
+          <Image
+            src={section.fileKey}
+            alt="Course Thumbnail"
+            width={600}
+            height={400}
+            className={cn("w-full rounded-t-lg aspect-video h-full object-cover", isLocked && "grayscale-[50%] blur-[2px]")}
+            unoptimized
+          />
+          {isLocked && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+              <div className="bg-background/80 backdrop-blur-md p-3 rounded-full shadow-lg">
+                <Lock className="w-6 h-6 text-primary" />
+              </div>
+            </div>
+          )}
+        </div>
       </Link>
       <CardContent className="p-4">
         <Link
-          href={`/dashboard/${section.slug}`}
-          className="font-medium text-lg line-clamp-2 hover:underline group-hover:text-primary transition-colors"
+          href={isLocked ? "#" : `/dashboard/${section.slug}`}
+          className={cn("font-medium text-lg line-clamp-2 hover:underline group-hover:text-primary transition-colors", isLocked && "pointer-events-none")}
         >
           {section.title}
         </Link>
@@ -61,13 +74,18 @@ export function CourseProgressCard({ data }: iAppProps) {
         </div>
 
         <Link
-          href={`/dashboard/sections/${section.slug}/chapters`}
-          // href={`/dashboard/Chapters`}
+          href={isLocked ? "#" : `/dashboard/sections/${section.slug}/chapters`}
           className={buttonVariants({
-            className: "w-full flex items-center justify-center gap-2 mt-4",
+            className: cn("w-full flex items-center justify-center gap-2 mt-4", isLocked && "cursor-not-allowed bg-muted text-muted-foreground hover:bg-muted pointer-events-none"),
           })}
         >
-          Continue Learning
+          {isLocked ? (
+            <>
+              <Lock className="w-4 h-4 mr-1" /> Locked
+            </>
+          ) : (
+            "Continue Learning"
+          )}
         </Link>
       </CardContent>
     </Card>

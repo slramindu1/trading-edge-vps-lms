@@ -40,9 +40,9 @@ export function Toolbar() {
     ];
 
     const images = [
-      "/5.jpg", "/new3.jpg", "/new7.jpg", "/4.jpg", "/new10.jpg", "/new13.jpg", 
-      "/new1.jpg", "/new4.jpg", "/new5.jpg", "/new8.jpg", "/new11.jpg", "/11.jpg", 
-      "/new2.jpg", "/new6.jpg", "/new9.jpg", "/new12.jpg", "/new14.jpg"
+      "/assets/5.jpg", "/assets/new3.jpg", "/assets/new7.jpg", "/assets/4.jpg", "/assets/new10.jpg", "/assets/new13.jpg", 
+      "/assets/new1.jpg", "/assets/new4.jpg", "/assets/new5.jpg", "/assets/new8.jpg", "/assets/new11.jpg", "/assets/11.jpg", 
+      "/assets/new2.jpg", "/assets/new6.jpg", "/assets/new9.jpg", "/assets/new12.jpg", "/assets/new14.jpg"
     ];
 
     let col = 0;

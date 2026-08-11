@@ -387,6 +387,7 @@ function CanvasElement({
     removeElement,
     copyElement,
     pushHistory,
+    zoom,
   } = useBuilder();
   const isSelected = selectedElementId === element.id;
 
@@ -406,8 +407,8 @@ function CanvasElement({
     const startElY = element.y;
 
     const handlePointerMove = (moveEvent: PointerEvent) => {
-      const deltaX = moveEvent.clientX - startX;
-      const deltaY = moveEvent.clientY - startY;
+      const deltaX = (moveEvent.clientX - startX) / zoom;
+      const deltaY = (moveEvent.clientY - startY) / zoom;
       let newWidth = startWidth,
         newHeight = startHeight,
         newX = startElX,
@@ -469,8 +470,8 @@ function CanvasElement({
     const startElY = element.y;
 
     const handlePointerMove = (moveEvent: PointerEvent) => {
-      const deltaX = moveEvent.clientX - startX;
-      const deltaY = moveEvent.clientY - startY;
+      const deltaX = (moveEvent.clientX - startX) / zoom;
+      const deltaY = (moveEvent.clientY - startY) / zoom;
       let newWidth = startWidth,
         newHeight = startHeight,
         newX = startElX,
@@ -506,8 +507,8 @@ function CanvasElement({
       onDragStart={() => pushHistory()}
       onDragEnd={(event, info) => {
         updateElement(element.id, {
-          x: Math.round(element.x + info.offset.x),
-          y: Math.round(element.y + info.offset.y),
+          x: Math.round(element.x + info.offset.x / zoom),
+          y: Math.round(element.y + info.offset.y / zoom),
         });
       }}
       initial={false}
@@ -692,11 +693,13 @@ function CanvasElement({
           <img
             src={getImageUrl(element.imageUrl)}
             alt="Element"
+            draggable={false}
             style={{
               width: "100%",
               height: "100%",
               objectFit: "cover",
               borderRadius: "inherit",
+              pointerEvents: "none",
             }}
             onError={() => {
               console.error("Failed to load image:", getImageUrl(element.imageUrl));

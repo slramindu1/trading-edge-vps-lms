@@ -62,7 +62,7 @@ export function Toolbar() {
       id: `el_${Date.now()}`,
       type,
       x: Math.max(0, Math.round((canvasW - elWidth) / 2)) + offset,
-      y: Math.max(0, Math.round((canvasH - elHeight) / 2)) + offset,
+      y: 50 + offset,
       width: elWidth,
       height: elHeight,
       rotation: 0,

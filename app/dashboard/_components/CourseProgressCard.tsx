@@ -22,7 +22,7 @@ export function CourseProgressCard({ data, isLocked }: iAppProps) {
     useCourseProgress({ courseData: section });
 
   return (
-    <Card className={cn("group relative py-0 gap-0 transition-all", isLocked && "opacity-60")}>
+    <Card className={cn("group relative py-0 gap-0 transition-all", isLocked && "border-rose-500/20 shadow-md")}>
       <Link href={isLocked ? "#" : `/dashboard/sections/${section.slug}/chapters`} className={cn(isLocked && "pointer-events-none")}>
         <div className="relative">
           <Image
@@ -30,13 +30,19 @@ export function CourseProgressCard({ data, isLocked }: iAppProps) {
             alt="Course Thumbnail"
             width={600}
             height={400}
-            className={cn("w-full rounded-t-lg aspect-video h-full object-cover", isLocked && "grayscale-[50%] blur-[2px]")}
+            className={cn("w-full rounded-t-lg aspect-video h-full object-cover", isLocked && "grayscale-[80%] blur-[3px]")}
             unoptimized
           />
           {isLocked && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-              <div className="bg-background/80 backdrop-blur-md p-3 rounded-full shadow-lg">
-                <Lock className="w-6 h-6 text-primary" />
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30">
+              <div className="bg-background/90 backdrop-blur-xl border border-white/10 dark:border-white/5 shadow-2xl rounded-xl p-4 flex flex-col items-center text-center mx-4 max-w-[80%]">
+                <div className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center mb-2 border border-rose-500/20">
+                  <Lock className="w-5 h-5 text-rose-500" />
+                </div>
+                <h3 className="text-base font-bold text-foreground">Content Locked</h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
+                  You do not have access to this course.
+                </p>
               </div>
             </div>
           )}
@@ -81,7 +87,7 @@ export function CourseProgressCard({ data, isLocked }: iAppProps) {
         >
           {isLocked ? (
             <>
-              <Lock className="w-4 h-4 mr-1" /> Locked
+              <Lock className="w-4 h-4 mr-1 text-rose-500" /> <span className="text-rose-500 font-medium">Locked</span>
             </>
           ) : (
             "Continue Learning"

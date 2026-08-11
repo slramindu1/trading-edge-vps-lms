@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { useBuilder, BuilderElement } from "./BuilderContext";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import {
   Copy,
   Trash,
@@ -696,6 +697,10 @@ function CanvasElement({
               height: "100%",
               objectFit: "cover",
               borderRadius: "inherit",
+            }}
+            onError={() => {
+              console.error("Failed to load image:", getImageUrl(element.imageUrl));
+              toast.error(`Failed to load image: ${element.imageUrl}`);
             }}
           />
         )}

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import {
   AlignLeft, AlignCenter, AlignRight, Bold, Eye, EyeOff,
   Lock, Unlock, Trash, Upload, RotateCcw, ChevronDown, ChevronUp,
@@ -164,7 +165,15 @@ export function PropertiesPanel() {
                 <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleUpload} />
                 {el.imageUrl && (
                   <div className="rounded-lg overflow-hidden border border-border aspect-video bg-muted">
-                    <img src={getImageUrl(el.imageUrl)} alt="Preview" className="w-full h-full object-cover" />
+                    <img 
+                      src={getImageUrl(el.imageUrl)} 
+                      alt="Preview" 
+                      className="w-full h-full object-cover" 
+                      onError={() => {
+                        console.error("Failed to load image preview:", getImageUrl(el.imageUrl));
+                        toast.error(`Failed to load image preview: ${el.imageUrl}`);
+                      }}
+                    />
                   </div>
                 )}
               </Section>

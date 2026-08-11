@@ -500,26 +500,57 @@ function CanvasElement({
     window.addEventListener("pointerup", handlePointerUp);
   };
 
+  const handleDragStart = (e: React.PointerEvent) => {
+    if (element.locked) return;
+    // Don't start drag if clicking on a resize handle or floating toolbar
+    if ((e.target as HTMLElement).closest('.pointer-events-auto')) return;
+    
+    e.stopPropagation();
+    setSelectedElementId(element.id);
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startElX = element.x;
+    const startElY = element.y;
+    
+    let hasDragged = false;
+
+    const handlePointerMove = (moveEvent: PointerEvent) => {
+      if (!hasDragged) {
+        pushHistory();
+        hasDragged = true;
+      }
+      const deltaX = (moveEvent.clientX - startX) / zoom;
+      const deltaY = (moveEvent.clientY - startY) / zoom;
+      
+      updateElement(element.id, {
+        x: Math.round(startElX + deltaX),
+        y: Math.round(startElY + deltaY),
+      });
+    };
+
+    const handlePointerUp = () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+    };
+
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp);
+  };
+
   return (
-    <motion.div
-      drag={!element.locked}
-      dragMomentum={false}
-      onDragStart={() => pushHistory()}
-      onDragEnd={(event, info) => {
-        updateElement(element.id, {
-          x: Math.round(element.x + info.offset.x / zoom),
-          y: Math.round(element.y + info.offset.y / zoom),
-        });
-      }}
-      initial={false}
-      animate={{ x: element.x, y: element.y, rotate: element.rotation }}
+    <div
+      onPointerDown={handleDragStart}
       style={{
         position: "absolute",
+        left: element.x,
+        top: element.y,
         width: element.width,
         height: element.height,
         opacity: element.opacity,
         zIndex: element.zIndex,
         borderRadius: element.borderRadius,
+        transform: `rotate(${element.rotation}deg)`,
         boxShadow: element.shadow
           ? "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
           : "none",
@@ -528,7 +559,6 @@ function CanvasElement({
         borderColor: element.borderColor || "transparent",
         borderStyle: element.borderStyle || "solid",
       }}
-      whileDrag={{ cursor: "grabbing", scale: 1.01 }}
       onClick={(e) => {
         e.stopPropagation();
         setSelectedElementId(element.id);
@@ -708,6 +738,6 @@ function CanvasElement({
           />
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }

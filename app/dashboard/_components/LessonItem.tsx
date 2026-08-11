@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { Lock } from "lucide-react";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 interface iAppProps {
   lesson: {
@@ -45,7 +46,7 @@ export function LessonItem({
             >
               {lesson.title}
             </p>
-            {isLocked && <span className="text-xs">🔒</span>}
+            {isLocked && <Lock className="w-3.5 h-3.5 text-muted-foreground/70" />}
           </div>
           {/* Video duration or PDF label */}
           {!completed && (

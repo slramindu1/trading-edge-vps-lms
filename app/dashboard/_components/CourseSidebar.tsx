@@ -7,7 +7,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ChevronDown, Play } from "lucide-react";
+import { ArrowLeft, ChevronDown, Play, Lock } from "lucide-react";
 import { LessonItem } from "./LessonItem";
 import { usePathname } from "next/navigation";
 import { useCourseProgress } from "@/hooks/use-course-progress";
@@ -96,7 +96,7 @@ export function CourseSidebar({ course }: iAppProps) {
                           <p className="font-semibold text-sm truncate">
                             {topic.title}
                           </p>
-                          {(topic.isLocked || chapter.isLocked) && <span className="text-xs">🔒</span>}
+                          {(topic.isLocked || chapter.isLocked) && <Lock className="w-3.5 h-3.5 text-muted-foreground/70" />}
                         </div>
                         <p className="text-[10px] text-muted-foreground">
                           {topic.lessons.length} Lessons

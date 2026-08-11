@@ -17,8 +17,16 @@ import {
 const getImageUrl = (url?: string) => {
   if (!url) return "";
   if (url.startsWith("http")) return url;
-  if (url.startsWith("/")) return url;
-  return `/assets/${url}`;
+  if (url.startsWith("/uploads/")) return url; // Uploads live on LMS
+  
+  let finalUrl = url;
+  if (!finalUrl.startsWith("/")) {
+    finalUrl = `/assets/${finalUrl}`;
+  }
+
+  // Any other local path (like /5.jpg or /assets/...) belongs to the landing page
+  const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL || "https://tradingedgefx.com";
+  return `${landingUrl.replace(/\/$/, '')}${finalUrl}`;
 };
 
 export function Canvas() {

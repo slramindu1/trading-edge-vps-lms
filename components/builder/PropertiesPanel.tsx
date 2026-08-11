@@ -407,6 +407,13 @@ function ColorPicker({ value, onChange }: { value: string; onChange: (c: string)
 function getImageUrl(url?: string) {
   if (!url) return "";
   if (url.startsWith("http")) return url;
-  if (url.startsWith("/")) return url;
-  return `/assets/${url}`;
+  if (url.startsWith("/uploads/")) return url;
+  
+  let finalUrl = url;
+  if (!finalUrl.startsWith("/")) {
+    finalUrl = `/assets/${finalUrl}`;
+  }
+
+  const landingUrl = process.env.NEXT_PUBLIC_LANDING_URL || "https://tradingedgefx.com";
+  return `${landingUrl.replace(/\/$/, '')}${finalUrl}`;
 }

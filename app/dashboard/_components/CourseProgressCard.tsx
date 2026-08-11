@@ -24,26 +24,25 @@ export function CourseProgressCard({ data, isLocked }: iAppProps) {
   return (
     <Card className={cn("group relative py-0 gap-0 transition-all", isLocked && "border-rose-500/20 shadow-md")}>
       <Link href={isLocked ? "#" : `/dashboard/sections/${section.slug}/chapters`} className={cn(isLocked && "pointer-events-none")}>
-        <div className="relative">
-          <Image
-            src={section.fileKey}
-            alt="Course Thumbnail"
-            width={600}
-            height={400}
-            className={cn("w-full rounded-t-lg aspect-video h-full object-cover", isLocked && "grayscale-[80%] blur-[3px]")}
-            unoptimized
-          />
-          {isLocked && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30">
-              <div className="bg-background/90 backdrop-blur-xl border border-white/10 dark:border-white/5 shadow-2xl rounded-xl p-4 flex flex-col items-center text-center mx-4 max-w-[80%]">
-                <div className="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center mb-2 border border-rose-500/20">
-                  <Lock className="w-5 h-5 text-rose-500" />
-                </div>
-                <h3 className="text-base font-bold text-foreground">Content Locked</h3>
-                <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
-                  You do not have access to this course.
-                </p>
+        <div className="relative w-full rounded-t-lg aspect-video bg-muted/20 flex flex-col items-center justify-center border-b">
+          {!isLocked ? (
+            <Image
+              src={section.fileKey}
+              alt="Course Thumbnail"
+              width={600}
+              height={400}
+              className="w-full rounded-t-lg aspect-video h-full object-cover"
+              unoptimized
+            />
+          ) : (
+            <div className="flex flex-col items-center text-center p-6 w-full h-full justify-center bg-background/50">
+              <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center mb-4 border border-rose-500/20 shadow-sm">
+                <Lock className="w-8 h-8 text-rose-500" />
               </div>
+              <h3 className="text-xl font-bold text-foreground">Course Locked</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                You do not have access to this course.
+              </p>
             </div>
           )}
         </div>
@@ -82,7 +81,8 @@ export function CourseProgressCard({ data, isLocked }: iAppProps) {
         <Link
           href={isLocked ? "#" : `/dashboard/sections/${section.slug}/chapters`}
           className={buttonVariants({
-            className: cn("w-full flex items-center justify-center gap-2 mt-4", isLocked && "cursor-not-allowed bg-muted text-muted-foreground hover:bg-muted pointer-events-none"),
+            variant: isLocked ? "secondary" : "default",
+            className: cn("w-full flex items-center justify-center gap-2 mt-4", isLocked && "cursor-not-allowed opacity-80 pointer-events-none"),
           })}
         >
           {isLocked ? (

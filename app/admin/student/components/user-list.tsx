@@ -54,6 +54,8 @@ interface UserListProps {
 
 export default function UserList({ searchQuery, statusFilter }: UserListProps) {
   const [users, setUsers] = useState<User[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pagination, setPagination] = useState({ total: 0, pages: 1, current: 1, limit: 15 });
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [userToBlock, setUserToBlock] = useState<User | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -72,10 +74,20 @@ export default function UserList({ searchQuery, statusFilter }: UserListProps) {
     const params = new URLSearchParams();
     if (searchQuery) params.append("searchQuery", searchQuery);
     if (statusFilter) params.append("statusFilter", statusFilter);
+    params.append("page", currentPage.toString());
+    params.append("limit", "15");
 
     const res = await fetch(`/api/users?${params.toString()}`);
-    const data = await res.json();
-    setUsers(data);
+    if (res.ok) {
+      const data = await res.json();
+      setUsers(data.users || []);
+      setPagination(data.pagination || { total: 0, pages: 1, current: 1, limit: 15 });
+    }
+  }, [searchQuery, statusFilter, currentPage]);
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
   }, [searchQuery, statusFilter]);
 
   useEffect(() => {
@@ -267,9 +279,7 @@ export default function UserList({ searchQuery, statusFilter }: UserListProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {users
-                .filter((user) => user.user_type_id !== 1) // Filter out admin users
-                .map((user) => {
+              {users.map((user) => {
                   const status = statusIdToString(user.status_id);
                   const role = userTypeIdToRole(user.user_type_id);
                   const name = `${user.fname || ""} ${user.lname || ""}`.trim();
@@ -387,11 +397,41 @@ export default function UserList({ searchQuery, statusFilter }: UserListProps) {
             </tbody>
           </table>
         </div>
-        {users.filter(user => user.user_type_id !== 1).length === 0 && (
+        {users.length === 0 && (
           <div className="px-6 py-12 text-center">
             <p className="text-muted-foreground">
               No users found matching your criteria.
             </p>
+          </div>
+        )}
+        
+        {/* Pagination Controls */}
+        {pagination.pages > 1 && (
+          <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-muted/20">
+            <div className="text-sm text-muted-foreground">
+              Showing {((pagination.current - 1) * pagination.limit) + 1} to {Math.min(pagination.current * pagination.limit, pagination.total)} of {pagination.total} users
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <div className="text-sm font-medium">
+                Page {currentPage} of {pagination.pages}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((prev) => Math.min(pagination.pages, prev + 1))}
+                disabled={currentPage === pagination.pages}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         )}
       </Card>

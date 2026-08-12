@@ -368,7 +368,7 @@ function SessionsTab({ securityEnabled = true }: { securityEnabled?: boolean }) 
               {[
                 { label: "City", value: location.city || "Unknown" },
                 { label: "Region", value: location.region || "Unknown" },
-                { label: "Country", value: location.country_code || "Unknown" },
+                { label: "Country", value: location.country_name || "Unknown" },
                 { label: "Timezone", value: location.timezone || "Unknown" },
                 { label: "IP Address", value: location.ip || "Unknown" },
               ].map(({ label, value }) => (

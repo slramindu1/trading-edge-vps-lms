@@ -1,7 +1,5 @@
 import { cookies } from "next/headers";
-import { PrismaClient } from "./generated/prisma";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function getServerSession() {
   const cookieStore = await cookies();
@@ -24,7 +22,7 @@ export async function getServerSession() {
       fname: user.fname,
       lname: user.lname,
       user_type_id: user.user_type_id,
-      role: user.user_type_id === 2 ? "admin" : "user",
+      role: user.user_type_id === 1 ? "admin" : "user",
     },
   };
 }

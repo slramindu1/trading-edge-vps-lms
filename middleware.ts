@@ -62,8 +62,22 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Logged-in users on auth pages → dashboard
+  // Logged-in users on auth pages -> dashboard
   if (userId && (path.startsWith("/sign-in") || path.startsWith("/sign-up"))) {
+    try {
+      const apiUrl = new URL("/api/users/profile-check", request.url);
+      const profileResponse = await fetch(apiUrl, {
+        headers: { Cookie: `session_token=${userId}` },
+      });
+      if (profileResponse.status === 401 || profileResponse.status === 404) {
+        const response = NextResponse.next();
+        response.cookies.delete("session_token");
+        response.cookies.delete("session_key");
+        return response;
+      }
+    } catch {
+      // Network error, just proceed to redirect
+    }
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -74,6 +88,13 @@ export async function middleware(request: NextRequest) {
       const profileResponse = await fetch(apiUrl, {
         headers: { Cookie: `session_token=${userId}` },
       });
+
+      if (profileResponse.status === 401 || profileResponse.status === 404) {
+        const response = NextResponse.redirect(new URL("/sign-in", request.url));
+        response.cookies.delete("session_token");
+        response.cookies.delete("session_key");
+        return response;
+      }
 
       const contentType = profileResponse.headers.get("content-type");
       if (contentType?.includes("application/json")) {

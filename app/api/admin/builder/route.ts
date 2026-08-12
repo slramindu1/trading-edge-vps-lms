@@ -66,7 +66,8 @@ export async function POST(req: Request) {
       },
     });
 
-    revalidateTag('builder-sections');
+    // @ts-ignore - Next.js 16 type signature changed but runtime may still accept 1 arg
+    revalidateTag('builder-sections', 'default');
 
     return NextResponse.json(section);
   } catch (error) {

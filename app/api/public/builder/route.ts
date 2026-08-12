@@ -1,11 +1,20 @@
-export const dynamic = 'force-dynamic';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { unstable_cache } from 'next/cache';
+
+const getCachedSection = unstable_cache(
+  async (key: string) => {
+    return await prisma.pageSection.findUnique({
+      where: { key },
+    });
+  },
+  ['page-section'],
+  { tags: ['builder-sections'] }
+);
 
 export async function GET(req: Request) {
   try {
-    // This is public, no session check needed.
     // Configure CORS so the landing page can fetch it if needed.
     const { searchParams } = new URL(req.url);
     const key = searchParams.get('key');
@@ -21,9 +30,7 @@ export async function GET(req: Request) {
       }
     }
 
-    const section = await prisma.pageSection.findUnique({
-      where: { key },
-    });
+    const section = await getCachedSection(key);
 
     if (!section) {
       return NextResponse.json({ error: 'Section not found' }, { status: 404 });

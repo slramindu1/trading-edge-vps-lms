@@ -276,3 +276,28 @@ model UpdateHistory {
   performedBy String   // admin email
   createdAt   DateTime @default(now())
 }
+
+enum ErrorCategory {
+  SYSTEM
+  USER
+  NETWORK
+  UNKNOWN
+}
+
+model SystemError {
+  id           String        @id @default(uuid())
+  message      String
+  stack        String?       @db.Text
+  category     ErrorCategory @default(UNKNOWN)
+  url          String?
+  method       String?
+  userAgent    String?
+  ipAddress    String?
+  networkSpeed String?       // e.g. "4g - 5.2Mbps"
+  userId       String?
+  resolved     Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+
+  @@index([category])
+  @@index([createdAt])
+}

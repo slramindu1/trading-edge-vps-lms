@@ -2,6 +2,7 @@ import { ThemeProvider } from "@/components/sidebar/theme-provider";
 import type { Metadata } from "next";
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
+import { ErrorTracker } from "@/components/providers/ErrorTracker";
 import "./globals.css";
 
 // REMOVE these lines - they use the old syntax:
@@ -32,7 +33,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
+          <ErrorTracker>
+            {children}
+          </ErrorTracker>
         </ThemeProvider>
       </body>
     </html>

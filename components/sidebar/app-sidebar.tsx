@@ -8,6 +8,7 @@ import {
   IconSettings,
   IconUsers,
   IconBrush,
+  IconAlertTriangle,
   type Icon as TablerIcon,
 } from "@tabler/icons-react";
 import { Download } from "lucide-react";
@@ -70,6 +71,11 @@ const navMainItems = [
     url: "/builder/landing-testimonials",
     icon: IconBrush as TablerIcon,
     target: "_blank",
+  },
+  {
+    title: "Error Log",
+    url: "/admin/errors",
+    icon: IconAlertTriangle as TablerIcon,
   },
 ];
 

@@ -257,14 +257,15 @@ model DeviceVerification {
 }
 
 model FeatureFlag {
-  id         String    @id @default(uuid())
-  featureKey String    @unique // e.g. "chapter-locking", "certificate-tool"
-  enabled    Boolean   @default(false)
-  version    String?
-  enabledAt  DateTime?
-  enabledBy  String? // email of who enabled it
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id          String    @id @default(uuid())
+  featureKey  String    @unique // e.g. "chapter-locking", "certificate-tool"
+  enabled     Boolean   @default(false)
+  version     String?
+  availableAt DateTime?
+  enabledAt   DateTime?
+  enabledBy   String? // email of who enabled it
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model UpdateHistory {
@@ -274,4 +275,29 @@ model UpdateHistory {
   version     String
   performedBy String // admin email
   createdAt   DateTime @default(now())
+}
+
+enum ErrorCategory {
+  SYSTEM
+  USER
+  NETWORK
+  UNKNOWN
+}
+
+model SystemError {
+  id           String        @id @default(uuid())
+  message      String
+  stack        String?       @db.Text
+  category     ErrorCategory @default(UNKNOWN)
+  url          String?
+  method       String?
+  userAgent    String?
+  ipAddress    String?
+  networkSpeed String? // e.g. "4g - 5.2Mbps"
+  userId       String?
+  resolved     Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+
+  @@index([category])
+  @@index([createdAt])
 }

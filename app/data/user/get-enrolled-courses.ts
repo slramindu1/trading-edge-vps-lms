@@ -46,6 +46,17 @@ export async function getEnrolledCourses() {
                       },
                     },
                   },
+                  lessons: {
+                    select: {
+                      id: true,
+                      LessonProgress: {
+                        where: { userId: user.user.id },
+                        select: {
+                          completed: true,
+                        },
+                      },
+                    },
+                  },
                 },
               },
             },
@@ -71,6 +82,12 @@ export async function getEnrolledCourses() {
               completedLessons++;
             }
           });
+        });
+        chapter.lessons.forEach((lesson) => {
+          totalLessons++;
+          if (lesson.LessonProgress.some((p) => p.completed)) {
+            completedLessons++;
+          }
         });
       });
 

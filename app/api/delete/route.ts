@@ -1,18 +1,29 @@
 import { NextResponse } from "next/server"
 import path from "path"
 import fs from "fs/promises"
+import { getServerSession } from "@/lib/getServerSession";
 
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession();
+    if (!session || session.user.user_type_id !== 1) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json()
     const fileName = body.name
 
-    if (!fileName) {
-      return NextResponse.json({ success: false, error: "File name is required" }, { status: 400 })
+    if (!fileName || typeof fileName !== 'string' || fileName.includes('..') || fileName.includes('/')) {
+      return NextResponse.json({ success: false, error: "Invalid file name" }, { status: 400 })
     }
 
     // Path to public/uploads
-    const filePath = path.join(process.cwd(), "public", "uploads", fileName)
+    const uploadDir = path.resolve(process.cwd(), "public", "uploads")
+    const filePath = path.resolve(uploadDir, fileName)
+
+    if (!filePath.startsWith(uploadDir)) {
+      return NextResponse.json({ success: false, error: "Invalid file path" }, { status: 400 })
+    }
 
     // Check if file exists before deleting
     try {

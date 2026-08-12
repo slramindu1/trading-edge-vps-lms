@@ -3,8 +3,10 @@
 import { prisma } from "@/lib/prisma";
 import { ApiResponse } from "@/lib/types";
 import { chapterSchema, ChapterSchemaType } from "@/lib/zodSchemas";
+import { requireAdmin } from "@/app/data/require-admin";
 
 export async function updateChapter(values: ChapterSchemaType, chapterId: string): Promise<ApiResponse> {
+  await requireAdmin();
   try {
     const result = chapterSchema.safeParse(values);
     if (!result.success) {

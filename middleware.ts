@@ -57,7 +57,8 @@ export async function middleware(request: NextRequest) {
           }
         }
       }
-    } catch {
+    } catch (error) {
+      console.error("[middleware] Session check failed:", error);
       // If check fails, allow through (don't block on network errors)
     }
   }
@@ -75,7 +76,8 @@ export async function middleware(request: NextRequest) {
         response.cookies.delete("session_key");
         return response;
       }
-    } catch {
+    } catch (error) {
+      console.error("[middleware] Profile check before dashboard redirect failed:", error);
       // Network error, just proceed to redirect
     }
     return NextResponse.redirect(new URL("/dashboard", request.url));
@@ -111,7 +113,8 @@ export async function middleware(request: NextRequest) {
           return NextResponse.redirect(new URL(redirectTo, request.url));
         }
       }
-    } catch {
+    } catch (error) {
+      console.error("[middleware] Profile completion check failed:", error);
       // continue
     }
   }

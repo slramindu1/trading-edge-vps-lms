@@ -1,9 +1,8 @@
 // app/api/user/profile-check/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/lib/generated/prisma";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
-  const prisma = new PrismaClient();
   
   try {
     // Get user ID from session_token cookie
@@ -43,7 +42,5 @@ export async function GET(request: NextRequest) {
       { error: "Internal server error" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

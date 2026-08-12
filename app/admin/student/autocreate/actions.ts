@@ -5,10 +5,13 @@ import { ApiResponse } from "@/lib/types";
 import { mailTransporter } from "@/lib/mail";
 import crypto from "crypto";
 import { getResetPasswordEmailHtml } from "@/lib/email-template";
+import { requireAdmin } from "@/app/data/require-admin";
 
 export async function AddStudent(
   data: StudentSchemaType
 ): Promise<ApiResponse> {
+  await requireAdmin();
+
   const validation = StudentSchema.safeParse(data);
 
   if (!validation.success) {

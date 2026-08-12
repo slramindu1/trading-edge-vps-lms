@@ -11,11 +11,13 @@ import {
   SectionSchemaType,
 } from "@/lib/zodSchemas";
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/app/data/require-admin";
 
 export async function editCourse(
   data: SectionSchemaType,
   sectionId: string
 ): Promise<ApiResponse> {
+  await requireAdmin();
   const validation = SectionSchema.safeParse(data);
   if (!validation.success) {
     return { status: "error", message: "Invalid data" };
@@ -93,6 +95,7 @@ export async function reorderLessons(
   lessons: { id: string; position: number }[],
   courseId: string
 ): Promise<ApiResponse> {
+  await requireAdmin();
   try {
     if (!lessons || lessons.length === 0) {
       return {
@@ -125,6 +128,7 @@ export async function reorderChapters(
   courseId: string,
   chapters: { id: string; position: number }[]
 ): Promise<ApiResponse> {
+  await requireAdmin();
   try {
     if (!chapters || chapters.length === 0) {
       return {
@@ -159,6 +163,7 @@ export async function reorderChapters(
 export async function createChapter(
   values: ChapterSchemaType
 ): Promise<ApiResponse> {
+  await requireAdmin();
   try {
     const result = chapterSchema.safeParse(values);
     if (!result.success) {
@@ -200,6 +205,7 @@ export async function createChapter(
 export async function createLesson(
   values: LessonSchemaType
 ): Promise<ApiResponse> {
+  await requireAdmin();
   try {
     const result = lessonSchema.safeParse(values);
     if (!result.success) {
@@ -258,6 +264,7 @@ export async function deleteLesson({
   sectionId: string;
   lessonId: string;
 }): Promise<ApiResponse> {
+  await requireAdmin();
   try {
     const chapterWithLessons = await prisma.chapter.findUnique({
       where: {
@@ -326,6 +333,7 @@ export async function deleteChapter({
   chapterId: string;
   sectionId: string;
 }): Promise<ApiResponse> {
+  await requireAdmin();
   try {
     const sectionWithChapters = await prisma.section.findUnique({
       where: { id: sectionId },

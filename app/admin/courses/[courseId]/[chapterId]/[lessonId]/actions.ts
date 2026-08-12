@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { ApiResponse } from "@/lib/types";
 import { lessonSchema, LessonSchemaType, topicSchema, TopicSchemaType } from "@/lib/zodSchemas";
+import { requireAdmin } from "@/app/data/require-admin";
 
 /* ----------------------------------------
   Update Lesson Function
@@ -11,6 +12,7 @@ export async function updateLesson(
   values: LessonSchemaType & { videoDuration?: string },
   lessonId: string
 ): Promise<ApiResponse> {
+  await requireAdmin();
   try {
     const result = lessonSchema.safeParse(values);
 
@@ -62,6 +64,7 @@ export async function updateLesson(
   Create Topic Function
 ---------------------------------------- */
 export async function createTopic(values: TopicSchemaType): Promise<ApiResponse> {
+  await requireAdmin();
   try {
     const result = topicSchema.safeParse(values);
 

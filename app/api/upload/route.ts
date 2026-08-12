@@ -4,9 +4,15 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
+import { getServerSession } from "@/lib/getServerSession";
 
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession();
+    if (!session || session.user.user_type_id !== 1) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
 

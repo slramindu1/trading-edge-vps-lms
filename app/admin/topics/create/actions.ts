@@ -2,10 +2,13 @@
 
 import { prisma } from "@/lib/prisma";
 import { SectionSchema, SectionSchemaType } from "@/lib/zodSchemas";
+import { requireAdmin } from "@/app/data/require-admin";
 
 export async function CreateCourse(
   data: SectionSchemaType
 ) {
+  await requireAdmin();
+
   const validation = SectionSchema.safeParse(data);
   if (!validation.success) {
     return { status: "error", message: "Invalid Data" };

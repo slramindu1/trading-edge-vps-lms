@@ -3,7 +3,6 @@
 import type { SectionType } from "@/app/data/user/get-enrolled-courses";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useCourseProgress } from "@/hooks/use-course-progress";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -17,9 +16,7 @@ interface iAppProps {
 
 export function CourseProgressCard({ data, isLocked }: iAppProps) {
   const section = data; // <-- FIX: This is already the section
-
-  const { totalLessons, completedLessons, progressPercentage } =
-    useCourseProgress({ courseData: section });
+  const { totalLessons, completedLessons, progressPercentage } = section.progress || { totalLessons: 0, completedLessons: 0, progressPercentage: 0 };
 
   return (
     <Card className={cn("group relative py-0 gap-0 transition-all", isLocked && "border-rose-500/20 shadow-md")}>

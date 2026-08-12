@@ -31,35 +31,20 @@ export async function getEnrolledCourses() {
 
               chapters: {
                 select: {
-                  id: true,
-                  title: true,
-                  position: true,
                   topics: {
                     select: {
-                      id: true,
-                      title: true,
-                      position: true,
                       lessons: {
                         select: {
                           id: true,
-                          title: true,
-                          position: true,
-                          thumbnailUrl: true,
-                          videoUrl: true,
-                          videoDuration: true, // required by your type
                           LessonProgress: {
                             where: { userId: user.user.id },
                             select: {
-                              id: true,
                               completed: true,
-                              LessonId: true,
                             },
                           },
                         },
-                        orderBy: { position: "asc" },
                       },
                     },
-                    orderBy: { position: "asc" },
                   },
                 },
               },
@@ -70,7 +55,46 @@ export async function getEnrolledCourses() {
     },
   });
 
-  return data;
+  // Pre-calculate progress and strip nested massive arrays to prevent 
+  // Node.js serialization blocking (causing timeouts/slow loads).
+  const optimizedData = data.map((u) => ({
+    ...u,
+    enrollments: u.enrollments.map((e) => {
+      let totalLessons = 0;
+      let completedLessons = 0;
+
+      e.section.chapters.forEach((chapter) => {
+        chapter.topics.forEach((topic) => {
+          topic.lessons.forEach((lesson) => {
+            totalLessons++;
+            if (lesson.LessonProgress.some((p) => p.completed)) {
+              completedLessons++;
+            }
+          });
+        });
+      });
+
+      const progressPercentage =
+        totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
+      return {
+        section: {
+          id: e.section.id,
+          title: e.section.title,
+          smallDescription: e.section.smallDescription,
+          fileKey: e.section.fileKey,
+          slug: e.section.slug,
+          progress: {
+            totalLessons,
+            completedLessons,
+            progressPercentage,
+          },
+        },
+      };
+    }),
+  }));
+
+  return optimizedData;
 }
 
 export type EnrolledCourseType = Awaited<

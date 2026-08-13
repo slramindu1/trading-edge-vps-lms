@@ -106,6 +106,30 @@ const STATIC_UPDATES: ManifestUpdate[] = [
     requiresBuild: false,
     changelog: ["Account Profile Tab", "Security Tab", "Sessions Map Tab", "Data Management Tab"],
   },
+  {
+    id: "landing-new-code-optimization-update",
+    name: "Landing Page Optimizations",
+    version: "1.0.0",
+    tier: "FREE",
+    description: "Caching and performance optimizations for the Landing Page.",
+    longDescription: "Dramatically improves loading speed using Incremental Static Regeneration and Next.js Image optimizations.",
+    icon: "timer",
+    files: [],
+    requiresBuild: true,
+    changelog: ["Next.js Image component optimization", "Incremental Static Regeneration (ISR)", "Production environment variable fixes", "Bug fixes in builder module"]
+  },
+  {
+    id: "lms-new-code-optimization-update",
+    name: "LMS Security & Performance Update",
+    version: "1.0.0",
+    tier: "FREE",
+    description: "Major security fixes and speed improvements for LMS.",
+    longDescription: "Includes advanced error logging, database connection pooling to prevent crashes, backend pagination, and fixes for timezone and location mapping.",
+    icon: "shield",
+    files: [],
+    requiresBuild: true,
+    changelog: ["Prisma Connection Pooling Singleton", "Advanced Admin Error Logging", "Admin Student List Pagination", "Location mapping API fix", "Next.js cache tag signature fix"]
+  }
 ];
 
 const ICONS: Record<string, React.ReactNode> = {

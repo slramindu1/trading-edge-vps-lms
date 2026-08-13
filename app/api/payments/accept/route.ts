@@ -1,19 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/getSession";
+import { mailTransporter } from "@/lib/mail";
+import { getResetPasswordEmailHtml } from "@/lib/email-template";
+import crypto from "crypto";
 
 export async function GET(request: NextRequest) {
   try {
-    // ── Bug #2 Fix: Require admin session ──────────────────────────────────
-    const session = await getSession();
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
-
-    if (!session || session.user.user_type_id !== 1) {
-      // Not logged in as admin — redirect to login, then back to this URL
-      const returnUrl = encodeURIComponent(request.url);
-      return NextResponse.redirect(`${baseUrl}/sign-in?redirect=${returnUrl}`);
-    }
-
     const { searchParams } = new URL(request.url);
     const paymentId = searchParams.get("paymentId");
     const email = searchParams.get("email");
@@ -21,11 +13,10 @@ export async function GET(request: NextRequest) {
 
     console.log("📧 Payment Accept Request:", { paymentId, email, fullName });
 
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
+
     if (!paymentId || !email || !fullName) {
-      return NextResponse.json(
-        { success: false, message: "Missing required parameters" },
-        { status: 400 }
-      );
+      return NextResponse.redirect(`${baseUrl}/admin/student?error=missing_params`);
     }
 
     // Verify payment exists
@@ -34,30 +25,120 @@ export async function GET(request: NextRequest) {
     });
 
     if (!payment) {
-      return NextResponse.json(
-        { success: false, message: "Payment not found" },
-        { status: 404 }
-      );
+      return NextResponse.redirect(`${baseUrl}/admin/student?error=payment_not_found`);
     }
 
-    // ── Bug #5 Fix: Check if payment already fully processed ───────────────
     if (payment.status === "COMPLETED") {
-      return NextResponse.redirect(
-        `${baseUrl}/admin/student?info=payment_already_completed`
-      );
+      // Already processed — redirect safely without double-activating
+      return NextResponse.redirect(`${baseUrl}/admin/student?info=already_approved`);
     }
 
-    // Update payment status to APPROVED (safe to run again if already APPROVED)
+    // Split fullName into fname + lname
+    const nameParts = fullName.trim().split(/\s+/);
+    const fname = nameParts[0] || fullName;
+    const lname = nameParts.slice(1).join(" ") || "";
+
+    // Find existing user (created at checkout email-verify step)
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+
+    let userId: string;
+
+    if (existingUser) {
+      // Update the existing placeholder account → activate + mark as paid
+      await prisma.user.update({
+        where: { email },
+        data: {
+          fname,
+          lname,
+          status_id: 1,          // Active
+          student_type: "PAID",
+          is_paid: true,
+          payment_date: new Date(),
+          profile_completed: true,
+          profile_updated_at: new Date(),
+        },
+      });
+      userId = existingUser.id;
+      console.log("✅ Existing user activated:", email);
+    } else {
+      // Fallback: user was never created (edge case), create them now
+      const newUser = await prisma.user.create({
+        data: {
+          fname,
+          lname,
+          email,
+          user_type_id: 2,
+          status_id: 1,
+          student_type: "PAID",
+          is_paid: true,
+          payment_date: new Date(),
+          profile_completed: true,
+        },
+      });
+      userId = newUser.id;
+      console.log("✅ New user created:", email);
+    }
+
+    // Enroll in ALL published sections
+    try {
+      const publishedSections = await prisma.section.findMany({
+        where: { status: "Published" },
+      });
+
+      const enrollments = publishedSections.map((section) => ({
+        userId,
+        sectionId: section.id,
+      }));
+
+      if (enrollments.length > 0) {
+        await prisma.enrollment.createMany({
+          data: enrollments,
+          skipDuplicates: true,
+        });
+        console.log(`✅ Enrolled in ${enrollments.length} published sections`);
+      }
+    } catch (enrollError) {
+      console.warn("⚠️ Could not auto-enroll:", enrollError);
+    }
+
+    // Mark payment as COMPLETED
     await prisma.payment.update({
       where: { id: paymentId },
-      data: { status: "APPROVED" },
+      data: { status: "COMPLETED" },
     });
 
-    console.log("✅ Payment approved:", paymentId);
+    // Send "Set Your Password" email (24h token so student has time)
+    try {
+      const token = crypto.randomUUID();
+      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    // Redirect to autocreate page
-    const redirectUrl = `${baseUrl}/admin/student/autocreate?email=${encodeURIComponent(email)}&fullName=${encodeURIComponent(fullName)}&paymentId=${paymentId}&fromPayment=true`;
-    return NextResponse.redirect(redirectUrl);
+      await prisma.user.update({
+        where: { email },
+        data: {
+          verification_code: token,
+          reset_token_expiry: expires,
+        },
+      });
+
+      const resetUrl = `${baseUrl}/reset-password?token=${token}`;
+      const html = getResetPasswordEmailHtml(email, resetUrl);
+
+      await mailTransporter.sendMail({
+        from: `"TradingEdge LMS" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: "Welcome! Set Your Password to Access TradingEdge LMS",
+        html,
+      });
+
+      console.log("✅ Password setup email sent to:", email);
+    } catch (mailError) {
+      console.warn("⚠️ Could not send password email:", mailError);
+    }
+
+    console.log("✅ Payment approved & account activated:", paymentId);
+
+    // Redirect admin to student list
+    return NextResponse.redirect(`${baseUrl}/admin/student?success=approved`);
 
   } catch (err) {
     console.error("❌ Accept payment error:", err);
@@ -94,5 +175,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
+}

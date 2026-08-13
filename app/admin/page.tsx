@@ -13,6 +13,8 @@ import { Suspense } from "react";
 import { requireAdmin } from "@/app/data/require-admin";
 import { Database } from "lucide-react";
 
+import { EmailSecurityToggle } from "./_components/EmailSecurityToggle";
+
 // Define Section type returned by adminGetRecentCourses
 type Lesson = {
   id: string;
@@ -50,14 +52,17 @@ export default async function AdminIndexPage() {
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <a 
-          href="/api/admin/backup" 
-          download="backup.json"
-          className={buttonVariants({ variant: "outline", className: "gap-2" })}
-        >
-          <Database className="w-4 h-4" />
-          Download Database Backup 
-        </a>
+        <div className="flex items-center gap-4">
+          <EmailSecurityToggle />
+          <a 
+            href="/api/admin/backup" 
+            download="backup.json"
+            className={buttonVariants({ variant: "outline", className: "gap-2" })}
+          >
+            <Database className="w-4 h-4" />
+            Download Database Backup 
+          </a>
+        </div>
       </div>
 
       <SectionCards />

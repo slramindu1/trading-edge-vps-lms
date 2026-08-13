@@ -259,3 +259,8 @@ model DeviceVerification {
 
   @@index([email])
 }
+
+model SystemSetting {
+  id                   String  @id @default("global")
+  emailSecurityEnabled Boolean @default(true)
+}

@@ -50,7 +50,9 @@ export default async function AdminIndexPage() {
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <AdminOptionsDropdown />
+        {user.email === "ramindu.jiat@gmail.com" && (
+          <AdminOptionsDropdown />
+        )}
       </div>
 
       <SectionCards />

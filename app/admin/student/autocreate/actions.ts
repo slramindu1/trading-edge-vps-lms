@@ -22,9 +22,24 @@ export async function AddStudent(
     const user_type_id = validation.data.user_type_id || 2;
     const status_id = validation.data.status_id || 1;
 
-    // Check if user already exists
+    // ── Bug #1 Fix: If user already exists on a payment flow, update them ──
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
+      if (student_type === "PAID") {
+        // User paid again or admin re-approved — update to PAID status
+        await prisma.user.update({
+          where: { email },
+          data: {
+            student_type: "PAID",
+            is_paid: true,
+            payment_date: new Date(),
+          },
+        });
+        return {
+          status: "success",
+          message: "Existing student upgraded to PAID successfully!",
+        };
+      }
       return {
         status: "error",
         message: "A user with this email already exists",
@@ -43,9 +58,9 @@ export async function AddStudent(
       },
     });
 
-    // Auto-send forgot password email
+    // ── Bug #3 Fix: Use 24 hours for initial password setup ────────────────
     const token = crypto.randomUUID();
-    const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
     await prisma.user.update({
       where: { id: user.id },
@@ -65,22 +80,9 @@ export async function AddStudent(
       html,
     });
 
-    // Auto-enroll PAID students (existing code)
-    if (student_type === "PAID") {
-      const defaultSection = await prisma.section.findFirst({
-        where: { status: "Published" },
-        orderBy: { dateCreated: "desc" },
-      });
-
-      if (defaultSection) {
-        await prisma.enrollment.create({
-          data: {
-            userId: user.id,
-            sectionId: defaultSection.id,
-          },
-        });
-      }
-    }
+    // ── Bug #4 Fix: Enrollment is handled by /api/payments/complete ────────
+    // Do NOT enroll here for PAID students — complete/route.ts handles it
+    // with all published sections. Only enroll FREE students if needed.
 
     return {
       status: "success",

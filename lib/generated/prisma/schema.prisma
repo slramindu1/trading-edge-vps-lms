@@ -67,6 +67,10 @@ model User {
   is_paid      Boolean   @default(false)
   payment_date DateTime?
 
+  // Expiry control fields
+  expiry_disabled Boolean   @default(false) // If true, account never auto-deactivates
+  expiry_date     DateTime? // Custom expiry date (overrides joined_date + 1yr)
+
   enrollments    Enrollment[]
   LessonProgress LessonProgress[]
   lockedContent  LockedContent[]

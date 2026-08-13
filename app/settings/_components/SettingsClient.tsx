@@ -5,9 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   User, Shield, Key, Database, ArrowRight, ArrowLeft,
-  Mail, Loader2, MapPin, Camera, Check
+  Mail, Loader2, MapPin, Camera, Check, Edit2, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
 
@@ -25,6 +26,9 @@ interface SettingsClientProps {
     email: string;
     joined_date: Date;
     profile_image: string | null;
+    payment_date?: Date | null;
+    expiry_date?: Date | null;
+    expiry_disabled?: boolean;
   };
   securityEnabled?: boolean;
   autoDeactivationEnabled?: boolean;
@@ -33,13 +37,47 @@ interface SettingsClientProps {
 export function SettingsClient({ user, securityEnabled = true, autoDeactivationEnabled = true }: SettingsClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>("account");
   const [profileImage, setProfileImage] = useState<string | null>(user.profile_image);
+  
+  // Name edit state
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [fname, setFname] = useState(user.fname);
+  const [lname, setLname] = useState(user.lname);
+  const [isSavingName, setIsSavingName] = useState(false);
 
   const createdDate = new Date(user.joined_date).toLocaleDateString("en-GB", {
     day: "numeric", month: "short", year: "numeric",
   });
 
-  const initials = `${user.fname.charAt(0)}${user.lname.charAt(0)}`.toUpperCase();
+  const initials = `${fname.charAt(0)}${lname.charAt(0)}`.toUpperCase();
   const handleSubscriptionClick = () => setActiveTab("data");
+
+  const handleSaveName = async () => {
+    if (!fname.trim() || !lname.trim()) {
+      toast.error("First and last name are required");
+      return;
+    }
+    setIsSavingName(true);
+    try {
+      const res = await fetch("/api/users/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fname, lname }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Name updated successfully!");
+        setFname(data.fname);
+        setLname(data.lname);
+        setIsEditingName(false);
+      } else {
+        toast.error(data.error || "Failed to update name");
+      }
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setIsSavingName(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-neutral-800">
@@ -69,7 +107,7 @@ export function SettingsClient({ user, securityEnabled = true, autoDeactivationE
       <div className="max-w-[1300px] mx-auto px-10 py-16 flex flex-col md:flex-row gap-20 md:gap-40">
         {/* Left Column */}
         <div className="w-full md:w-72 shrink-0">
-          <h1 className="text-4xl font-medium tracking-tight mb-2">Welcome, {user.fname}.</h1>
+          <h1 className="text-4xl font-medium tracking-tight mb-2">Welcome, {fname}.</h1>
           <p className="text-neutral-400 text-xl mb-14 tracking-tight">Manage your account.</p>
 
           <div className="flex flex-col gap-1">
@@ -88,7 +126,15 @@ export function SettingsClient({ user, securityEnabled = true, autoDeactivationE
         <div className="flex-1 max-w-[700px]">
           {activeTab === "account" && (
             <AccountTab
-              user={user}
+              email={user.email}
+              fname={fname}
+              lname={lname}
+              isEditingName={isEditingName}
+              setIsEditingName={setIsEditingName}
+              setFname={setFname}
+              setLname={setLname}
+              handleSaveName={handleSaveName}
+              isSavingName={isSavingName}
               createdDate={createdDate}
               initials={initials}
               profileImage={profileImage}
@@ -98,7 +144,7 @@ export function SettingsClient({ user, securityEnabled = true, autoDeactivationE
           )}
           {securityEnabled && activeTab === "security" && <SecurityTab />}
           {securityEnabled && activeTab === "sessions" && <SessionsTab securityEnabled={securityEnabled} />}
-          {activeTab === "data" && <DataTab joinedDate={user.joined_date} autoDeactivationEnabled={autoDeactivationEnabled} />}
+          {activeTab === "data" && <DataTab user={user} autoDeactivationEnabled={autoDeactivationEnabled} />}
         </div>
       </div>
     </div>
@@ -121,13 +167,9 @@ function TabButton({ active, onClick, icon, label }: { active: boolean; onClick:
 }
 
 function AccountTab({
-  user, createdDate, initials, profileImage, onProfileImageChange, onSubscriptionClick,
-}: {
-  user: any; createdDate: string; initials: string;
-  profileImage: string | null;
-  onProfileImageChange: (url: string) => void;
-  onSubscriptionClick: () => void;
-}) {
+  email, fname, lname, isEditingName, setIsEditingName, setFname, setLname, handleSaveName, isSavingName,
+  createdDate, initials, profileImage, onProfileImageChange, onSubscriptionClick,
+}: any) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
@@ -159,7 +201,6 @@ function AccountTab({
       toast.error("Upload failed. Please try again.");
     } finally {
       setUploading(false);
-      // reset input so same file can be re-uploaded
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
@@ -172,7 +213,7 @@ function AccountTab({
           <p className="text-base text-neutral-400">Manage your account information.</p>
         </div>
 
-        {/* Clickable Avatar with Camera overlay */}
+        {/* Clickable Avatar */}
         <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
           <div className="w-20 h-20 rounded-full border-2 border-neutral-700 bg-neutral-900 flex items-center justify-center font-bold tracking-widest text-lg overflow-hidden">
             {profileImage ? (
@@ -181,7 +222,6 @@ function AccountTab({
               <span>{initials}</span>
             )}
           </div>
-          {/* Camera overlay on hover */}
           <div className="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
             {uploading ? (
               <Loader2 className="w-5 h-5 animate-spin text-white" />
@@ -191,7 +231,6 @@ function AccountTab({
               <Camera className="w-5 h-5 text-white" />
             )}
           </div>
-          {/* Hidden file input */}
           <input
             ref={fileInputRef}
             type="file"
@@ -202,24 +241,43 @@ function AccountTab({
         </div>
       </div>
 
-      {/* Account info card */}
       <div className="bg-[#0a0a0a] border border-neutral-800/60 rounded-3xl overflow-hidden mb-12">
-        <div className="flex items-center justify-between px-7 py-5 border-b border-neutral-800/50">
-          <div>
-            <div className="text-sm text-neutral-500 mb-1">Full name</div>
-            <div className="text-base font-medium">{user.fname} {user.lname}</div>
+        <div className="px-7 py-5 border-b border-neutral-800/50">
+          <div className="flex items-center justify-between mb-1">
+            <div className="text-sm text-neutral-500">Full name</div>
+            {!isEditingName ? (
+              <Button variant="outline" className="rounded-full bg-transparent border-neutral-700 hover:bg-neutral-800 hover:text-white text-sm h-9 px-5 cursor-pointer" onClick={() => setIsEditingName(true)}>
+                Edit name
+              </Button>
+            ) : null}
           </div>
-          <Button variant="outline" className="rounded-full bg-transparent border-neutral-700 hover:bg-neutral-800 hover:text-white text-sm h-9 px-5 cursor-pointer" onClick={() => toast.info("Name update coming soon")}>
-            Edit name
-          </Button>
+          
+          {!isEditingName ? (
+            <div className="text-base font-medium">{fname} {lname}</div>
+          ) : (
+            <div className="mt-3 space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <Input value={fname} onChange={(e) => setFname(e.target.value)} placeholder="First Name" className="bg-neutral-900 border-neutral-700 h-10" />
+                <Input value={lname} onChange={(e) => setLname(e.target.value)} placeholder="Last Name" className="bg-neutral-900 border-neutral-700 h-10" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Button onClick={handleSaveName} disabled={isSavingName} className="h-9 px-5">
+                  {isSavingName ? "Saving..." : "Save"}
+                </Button>
+                <Button variant="ghost" onClick={() => setIsEditingName(false)} disabled={isSavingName} className="h-9 px-4 text-neutral-400 hover:text-white">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between px-7 py-5 border-b border-neutral-800/50">
           <div>
             <div className="text-sm text-neutral-500 mb-1">Email</div>
-            <div className="text-base font-medium">{user.email}</div>
+            <div className="text-base font-medium">{email}</div>
           </div>
-          <Button variant="outline" className="rounded-full bg-transparent border-neutral-700 hover:bg-neutral-800 hover:text-white text-sm h-9 px-5 cursor-pointer" onClick={() => toast.info("Email update coming soon")}>
+          <Button variant="outline" className="rounded-full bg-transparent border-neutral-700 hover:bg-neutral-800 hover:text-white text-sm h-9 px-5 cursor-pointer" onClick={() => toast.info("Email update requires support request")}>
             Update email
           </Button>
         </div>
@@ -240,7 +298,6 @@ function AccountTab({
         </div>
       </div>
 
-      {/* Sign-in methods */}
       <h2 className="text-2xl font-medium tracking-tight mb-1.5">Sign-in methods</h2>
       <p className="text-base text-neutral-400 mb-7">Manage your ways of logging into Trading Edge.</p>
 
@@ -267,6 +324,16 @@ function AccountTab({
 }
 
 function SecurityTab() {
+  const handleChangePassword = async () => {
+    toast.loading("Redirecting to password reset...");
+    try {
+      await fetch("/api/logout", { method: "POST" });
+      window.location.href = "/forgot-password";
+    } catch {
+      window.location.href = "/forgot-password";
+    }
+  };
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
       <h2 className="text-2xl font-medium tracking-tight mb-10">Account security</h2>
@@ -276,7 +343,7 @@ function SecurityTab() {
             <div className="text-base font-medium mb-1">Login with password</div>
             <div className="text-sm text-neutral-500">Manage the password for your account.</div>
           </div>
-          <Button variant="outline" className="rounded-full bg-transparent border-neutral-700 hover:bg-neutral-800 hover:text-white text-sm h-9 px-5 cursor-pointer" onClick={() => toast.info("Password change feature coming soon")}>
+          <Button variant="outline" className="rounded-full bg-transparent border-neutral-700 hover:bg-neutral-800 hover:text-white text-sm h-9 px-5 cursor-pointer" onClick={handleChangePassword}>
             Change password
           </Button>
         </div>
@@ -285,7 +352,7 @@ function SecurityTab() {
             <div className="text-base font-medium mb-1">Multi-factor authentication</div>
             <div className="text-sm text-neutral-500">Secure your account with a second factor of authentication.</div>
           </div>
-          <Button variant="outline" className="rounded-full bg-transparent border-neutral-700 hover:bg-neutral-800 hover:text-white text-sm h-9 px-5 cursor-pointer" onClick={() => toast.info("MFA setup coming soon")}>
+          <Button variant="outline" className="rounded-full bg-transparent border-neutral-700 hover:bg-neutral-800 hover:text-white text-sm h-9 px-5 cursor-pointer" onClick={() => toast.error("You are not eligible for this feature")}>
             Enable MFA
           </Button>
         </div>
@@ -335,9 +402,6 @@ function SessionsTab({ securityEnabled = true }: { securityEnabled?: boolean }) 
       })
       .catch(() => setLoading(false));
   }, []);
-
-  // OSM via Leaflet — works everywhere
-  const hasLocation = !loading && location !== null;
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -394,16 +458,26 @@ function SessionsTab({ securityEnabled = true }: { securityEnabled?: boolean }) 
   );
 }
 
-function DataTab({ joinedDate, autoDeactivationEnabled = true }: { joinedDate: Date, autoDeactivationEnabled?: boolean }) {
+function DataTab({ user, autoDeactivationEnabled = true }: { user: any, autoDeactivationEnabled?: boolean }) {
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number }>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    const expiryDate = new Date(joinedDate);
-    expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+    if (user.expiry_disabled) return;
+
+    let targetDate: Date;
+    if (user.expiry_date) {
+      targetDate = new Date(user.expiry_date);
+    } else if (user.payment_date) {
+      targetDate = new Date(user.payment_date);
+      targetDate.setFullYear(targetDate.getFullYear() + 1);
+    } else {
+      targetDate = new Date(user.joined_date);
+      targetDate.setFullYear(targetDate.getFullYear() + 1);
+    }
 
     const tick = () => {
-      const distance = expiryDate.getTime() - Date.now();
+      const distance = targetDate.getTime() - Date.now();
       if (distance < 0) {
         setIsExpired(true);
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -419,7 +493,7 @@ function DataTab({ joinedDate, autoDeactivationEnabled = true }: { joinedDate: D
     tick();
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [joinedDate]);
+  }, [user.joined_date, user.payment_date, user.expiry_date, user.expiry_disabled]);
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -435,7 +509,7 @@ function DataTab({ joinedDate, autoDeactivationEnabled = true }: { joinedDate: D
               You can download all data associated with your account. This includes everything stored across all Trading Edge products.
             </div>
           </div>
-          <Button variant="outline" className="rounded-full bg-transparent border-neutral-700 hover:bg-neutral-800 hover:text-white text-sm h-9 px-5 shrink-0 cursor-pointer">
+          <Button variant="outline" className="rounded-full bg-transparent border-neutral-700 hover:bg-neutral-800 hover:text-white text-sm h-9 px-5 shrink-0 cursor-pointer" onClick={() => toast.error("You are not eligible for this feature")}>
             Download
           </Button>
         </div>
@@ -444,10 +518,15 @@ function DataTab({ joinedDate, autoDeactivationEnabled = true }: { joinedDate: D
             <div>
               <div className="text-base font-medium mb-1 text-rose-400">Account deactivated in</div>
               <div className="text-sm text-neutral-500 leading-relaxed max-w-sm">
-                Your account automatically deactivates exactly 1 year after registration. You will lose access to all course materials after this date.
+                Your account automatically deactivates exactly 1 year after registration unless extended. You will lose access to all course materials after this date.
               </div>
             </div>
-            {isExpired ? (
+            {user.expiry_disabled ? (
+              <div className="inline-flex items-center gap-2 text-blue-400 font-bold border border-blue-500/30 bg-blue-500/10 px-5 py-3 rounded-xl text-sm w-fit">
+                <Check className="w-4 h-4 text-blue-400" />
+                Expiry Disabled (Lifetime Access)
+              </div>
+            ) : isExpired ? (
               <div className="inline-flex items-center gap-2 text-rose-500 font-bold border border-rose-500/30 bg-rose-500/10 px-5 py-3 rounded-xl text-sm w-fit">
                 <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
                 Account Deactivated

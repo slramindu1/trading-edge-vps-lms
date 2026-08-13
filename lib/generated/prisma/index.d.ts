@@ -3450,6 +3450,8 @@ export namespace Prisma {
     profile_image: string | null
     is_paid: boolean | null
     payment_date: Date | null
+    expiry_disabled: boolean | null
+    expiry_date: Date | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -3472,6 +3474,8 @@ export namespace Prisma {
     profile_image: string | null
     is_paid: boolean | null
     payment_date: Date | null
+    expiry_disabled: boolean | null
+    expiry_date: Date | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -3494,6 +3498,8 @@ export namespace Prisma {
     profile_image: number
     is_paid: number
     payment_date: number
+    expiry_disabled: number
+    expiry_date: number
     _all: number
   }
 
@@ -3530,6 +3536,8 @@ export namespace Prisma {
     profile_image?: true
     is_paid?: true
     payment_date?: true
+    expiry_disabled?: true
+    expiry_date?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -3552,6 +3560,8 @@ export namespace Prisma {
     profile_image?: true
     is_paid?: true
     payment_date?: true
+    expiry_disabled?: true
+    expiry_date?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -3574,6 +3584,8 @@ export namespace Prisma {
     profile_image?: true
     is_paid?: true
     payment_date?: true
+    expiry_disabled?: true
+    expiry_date?: true
     _all?: true
   }
 
@@ -3683,6 +3695,8 @@ export namespace Prisma {
     profile_image: string | null
     is_paid: boolean
     payment_date: Date | null
+    expiry_disabled: boolean
+    expiry_date: Date | null
     _count: UserCountAggregateOutputType | null
     _avg: UserAvgAggregateOutputType | null
     _sum: UserSumAggregateOutputType | null
@@ -3724,6 +3738,8 @@ export namespace Prisma {
     profile_image?: boolean
     is_paid?: boolean
     payment_date?: boolean
+    expiry_disabled?: boolean
+    expiry_date?: boolean
     enrollments?: boolean | User$enrollmentsArgs<ExtArgs>
     LessonProgress?: boolean | User$LessonProgressArgs<ExtArgs>
     lockedContent?: boolean | User$lockedContentArgs<ExtArgs>
@@ -3752,6 +3768,8 @@ export namespace Prisma {
     profile_image?: boolean
     is_paid?: boolean
     payment_date?: boolean
+    expiry_disabled?: boolean
+    expiry_date?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3774,6 +3792,8 @@ export namespace Prisma {
     profile_image?: boolean
     is_paid?: boolean
     payment_date?: boolean
+    expiry_disabled?: boolean
+    expiry_date?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -3796,9 +3816,11 @@ export namespace Prisma {
     profile_image?: boolean
     is_paid?: boolean
     payment_date?: boolean
+    expiry_disabled?: boolean
+    expiry_date?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "fname" | "lname" | "password" | "mobile" | "joined_date" | "verification_code" | "reset_token_expiry" | "gender_id" | "user_type_id" | "status_id" | "aboutMe" | "student_type" | "profile_completed" | "profile_updated_at" | "profile_image" | "is_paid" | "payment_date", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "fname" | "lname" | "password" | "mobile" | "joined_date" | "verification_code" | "reset_token_expiry" | "gender_id" | "user_type_id" | "status_id" | "aboutMe" | "student_type" | "profile_completed" | "profile_updated_at" | "profile_image" | "is_paid" | "payment_date" | "expiry_disabled" | "expiry_date", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     enrollments?: boolean | User$enrollmentsArgs<ExtArgs>
     LessonProgress?: boolean | User$LessonProgressArgs<ExtArgs>
@@ -3839,6 +3861,8 @@ export namespace Prisma {
       profile_image: string | null
       is_paid: boolean
       payment_date: Date | null
+      expiry_disabled: boolean
+      expiry_date: Date | null
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -4286,6 +4310,8 @@ export namespace Prisma {
     readonly profile_image: FieldRef<"User", 'String'>
     readonly is_paid: FieldRef<"User", 'Boolean'>
     readonly payment_date: FieldRef<"User", 'DateTime'>
+    readonly expiry_disabled: FieldRef<"User", 'Boolean'>
+    readonly expiry_date: FieldRef<"User", 'DateTime'>
   }
     
 
@@ -19209,7 +19235,9 @@ export namespace Prisma {
     profile_updated_at: 'profile_updated_at',
     profile_image: 'profile_image',
     is_paid: 'is_paid',
-    payment_date: 'payment_date'
+    payment_date: 'payment_date',
+    expiry_disabled: 'expiry_disabled',
+    expiry_date: 'expiry_date'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -19652,6 +19680,8 @@ export namespace Prisma {
     profile_image?: StringNullableFilter<"User"> | string | null
     is_paid?: BoolFilter<"User"> | boolean
     payment_date?: DateTimeNullableFilter<"User"> | Date | string | null
+    expiry_disabled?: BoolFilter<"User"> | boolean
+    expiry_date?: DateTimeNullableFilter<"User"> | Date | string | null
     enrollments?: EnrollmentListRelationFilter
     LessonProgress?: LessonProgressListRelationFilter
     lockedContent?: LockedContentListRelationFilter
@@ -19679,6 +19709,8 @@ export namespace Prisma {
     profile_image?: SortOrderInput | SortOrder
     is_paid?: SortOrder
     payment_date?: SortOrderInput | SortOrder
+    expiry_disabled?: SortOrder
+    expiry_date?: SortOrderInput | SortOrder
     enrollments?: EnrollmentOrderByRelationAggregateInput
     LessonProgress?: LessonProgressOrderByRelationAggregateInput
     lockedContent?: LockedContentOrderByRelationAggregateInput
@@ -19709,6 +19741,8 @@ export namespace Prisma {
     profile_image?: StringNullableFilter<"User"> | string | null
     is_paid?: BoolFilter<"User"> | boolean
     payment_date?: DateTimeNullableFilter<"User"> | Date | string | null
+    expiry_disabled?: BoolFilter<"User"> | boolean
+    expiry_date?: DateTimeNullableFilter<"User"> | Date | string | null
     enrollments?: EnrollmentListRelationFilter
     LessonProgress?: LessonProgressListRelationFilter
     lockedContent?: LockedContentListRelationFilter
@@ -19736,6 +19770,8 @@ export namespace Prisma {
     profile_image?: SortOrderInput | SortOrder
     is_paid?: SortOrder
     payment_date?: SortOrderInput | SortOrder
+    expiry_disabled?: SortOrder
+    expiry_date?: SortOrderInput | SortOrder
     _count?: UserCountOrderByAggregateInput
     _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
@@ -19766,6 +19802,8 @@ export namespace Prisma {
     profile_image?: StringNullableWithAggregatesFilter<"User"> | string | null
     is_paid?: BoolWithAggregatesFilter<"User"> | boolean
     payment_date?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    expiry_disabled?: BoolWithAggregatesFilter<"User"> | boolean
+    expiry_date?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   }
 
   export type UserSessionWhereInput = {
@@ -20757,6 +20795,8 @@ export namespace Prisma {
     profile_image?: string | null
     is_paid?: boolean
     payment_date?: Date | string | null
+    expiry_disabled?: boolean
+    expiry_date?: Date | string | null
     enrollments?: EnrollmentCreateNestedManyWithoutUserInput
     LessonProgress?: LessonProgressCreateNestedManyWithoutUserInput
     lockedContent?: LockedContentCreateNestedManyWithoutUserInput
@@ -20784,6 +20824,8 @@ export namespace Prisma {
     profile_image?: string | null
     is_paid?: boolean
     payment_date?: Date | string | null
+    expiry_disabled?: boolean
+    expiry_date?: Date | string | null
     enrollments?: EnrollmentUncheckedCreateNestedManyWithoutUserInput
     LessonProgress?: LessonProgressUncheckedCreateNestedManyWithoutUserInput
     lockedContent?: LockedContentUncheckedCreateNestedManyWithoutUserInput
@@ -20811,6 +20853,8 @@ export namespace Prisma {
     profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     is_paid?: BoolFieldUpdateOperationsInput | boolean
     payment_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiry_disabled?: BoolFieldUpdateOperationsInput | boolean
+    expiry_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     enrollments?: EnrollmentUpdateManyWithoutUserNestedInput
     LessonProgress?: LessonProgressUpdateManyWithoutUserNestedInput
     lockedContent?: LockedContentUpdateManyWithoutUserNestedInput
@@ -20838,6 +20882,8 @@ export namespace Prisma {
     profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     is_paid?: BoolFieldUpdateOperationsInput | boolean
     payment_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiry_disabled?: BoolFieldUpdateOperationsInput | boolean
+    expiry_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     enrollments?: EnrollmentUncheckedUpdateManyWithoutUserNestedInput
     LessonProgress?: LessonProgressUncheckedUpdateManyWithoutUserNestedInput
     lockedContent?: LockedContentUncheckedUpdateManyWithoutUserNestedInput
@@ -20865,6 +20911,8 @@ export namespace Prisma {
     profile_image?: string | null
     is_paid?: boolean
     payment_date?: Date | string | null
+    expiry_disabled?: boolean
+    expiry_date?: Date | string | null
   }
 
   export type UserUpdateManyMutationInput = {
@@ -20887,6 +20935,8 @@ export namespace Prisma {
     profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     is_paid?: BoolFieldUpdateOperationsInput | boolean
     payment_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiry_disabled?: BoolFieldUpdateOperationsInput | boolean
+    expiry_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -20909,6 +20959,8 @@ export namespace Prisma {
     profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     is_paid?: BoolFieldUpdateOperationsInput | boolean
     payment_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiry_disabled?: BoolFieldUpdateOperationsInput | boolean
+    expiry_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UserSessionCreateInput = {
@@ -22111,6 +22163,8 @@ export namespace Prisma {
     profile_image?: SortOrder
     is_paid?: SortOrder
     payment_date?: SortOrder
+    expiry_disabled?: SortOrder
+    expiry_date?: SortOrder
   }
 
   export type UserAvgOrderByAggregateInput = {
@@ -22139,6 +22193,8 @@ export namespace Prisma {
     profile_image?: SortOrder
     is_paid?: SortOrder
     payment_date?: SortOrder
+    expiry_disabled?: SortOrder
+    expiry_date?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -22161,6 +22217,8 @@ export namespace Prisma {
     profile_image?: SortOrder
     is_paid?: SortOrder
     payment_date?: SortOrder
+    expiry_disabled?: SortOrder
+    expiry_date?: SortOrder
   }
 
   export type UserSumOrderByAggregateInput = {
@@ -24176,6 +24234,8 @@ export namespace Prisma {
     profile_image?: string | null
     is_paid?: boolean
     payment_date?: Date | string | null
+    expiry_disabled?: boolean
+    expiry_date?: Date | string | null
     enrollments?: EnrollmentCreateNestedManyWithoutUserInput
     LessonProgress?: LessonProgressCreateNestedManyWithoutUserInput
     lockedContent?: LockedContentCreateNestedManyWithoutUserInput
@@ -24202,6 +24262,8 @@ export namespace Prisma {
     profile_image?: string | null
     is_paid?: boolean
     payment_date?: Date | string | null
+    expiry_disabled?: boolean
+    expiry_date?: Date | string | null
     enrollments?: EnrollmentUncheckedCreateNestedManyWithoutUserInput
     LessonProgress?: LessonProgressUncheckedCreateNestedManyWithoutUserInput
     lockedContent?: LockedContentUncheckedCreateNestedManyWithoutUserInput
@@ -24244,6 +24306,8 @@ export namespace Prisma {
     profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     is_paid?: BoolFieldUpdateOperationsInput | boolean
     payment_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiry_disabled?: BoolFieldUpdateOperationsInput | boolean
+    expiry_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     enrollments?: EnrollmentUpdateManyWithoutUserNestedInput
     LessonProgress?: LessonProgressUpdateManyWithoutUserNestedInput
     lockedContent?: LockedContentUpdateManyWithoutUserNestedInput
@@ -24270,6 +24334,8 @@ export namespace Prisma {
     profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     is_paid?: BoolFieldUpdateOperationsInput | boolean
     payment_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiry_disabled?: BoolFieldUpdateOperationsInput | boolean
+    expiry_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     enrollments?: EnrollmentUncheckedUpdateManyWithoutUserNestedInput
     LessonProgress?: LessonProgressUncheckedUpdateManyWithoutUserNestedInput
     lockedContent?: LockedContentUncheckedUpdateManyWithoutUserNestedInput
@@ -24886,6 +24952,8 @@ export namespace Prisma {
     profile_image?: string | null
     is_paid?: boolean
     payment_date?: Date | string | null
+    expiry_disabled?: boolean
+    expiry_date?: Date | string | null
     LessonProgress?: LessonProgressCreateNestedManyWithoutUserInput
     lockedContent?: LockedContentCreateNestedManyWithoutUserInput
     sessions?: UserSessionCreateNestedManyWithoutUserInput
@@ -24912,6 +24980,8 @@ export namespace Prisma {
     profile_image?: string | null
     is_paid?: boolean
     payment_date?: Date | string | null
+    expiry_disabled?: boolean
+    expiry_date?: Date | string | null
     LessonProgress?: LessonProgressUncheckedCreateNestedManyWithoutUserInput
     lockedContent?: LockedContentUncheckedCreateNestedManyWithoutUserInput
     sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
@@ -24983,6 +25053,8 @@ export namespace Prisma {
     profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     is_paid?: BoolFieldUpdateOperationsInput | boolean
     payment_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiry_disabled?: BoolFieldUpdateOperationsInput | boolean
+    expiry_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LessonProgress?: LessonProgressUpdateManyWithoutUserNestedInput
     lockedContent?: LockedContentUpdateManyWithoutUserNestedInput
     sessions?: UserSessionUpdateManyWithoutUserNestedInput
@@ -25009,6 +25081,8 @@ export namespace Prisma {
     profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     is_paid?: BoolFieldUpdateOperationsInput | boolean
     payment_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiry_disabled?: BoolFieldUpdateOperationsInput | boolean
+    expiry_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     LessonProgress?: LessonProgressUncheckedUpdateManyWithoutUserNestedInput
     lockedContent?: LockedContentUncheckedUpdateManyWithoutUserNestedInput
     sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
@@ -25070,6 +25144,8 @@ export namespace Prisma {
     profile_image?: string | null
     is_paid?: boolean
     payment_date?: Date | string | null
+    expiry_disabled?: boolean
+    expiry_date?: Date | string | null
     enrollments?: EnrollmentCreateNestedManyWithoutUserInput
     lockedContent?: LockedContentCreateNestedManyWithoutUserInput
     sessions?: UserSessionCreateNestedManyWithoutUserInput
@@ -25096,6 +25172,8 @@ export namespace Prisma {
     profile_image?: string | null
     is_paid?: boolean
     payment_date?: Date | string | null
+    expiry_disabled?: boolean
+    expiry_date?: Date | string | null
     enrollments?: EnrollmentUncheckedCreateNestedManyWithoutUserInput
     lockedContent?: LockedContentUncheckedCreateNestedManyWithoutUserInput
     sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
@@ -25175,6 +25253,8 @@ export namespace Prisma {
     profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     is_paid?: BoolFieldUpdateOperationsInput | boolean
     payment_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiry_disabled?: BoolFieldUpdateOperationsInput | boolean
+    expiry_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     enrollments?: EnrollmentUpdateManyWithoutUserNestedInput
     lockedContent?: LockedContentUpdateManyWithoutUserNestedInput
     sessions?: UserSessionUpdateManyWithoutUserNestedInput
@@ -25201,6 +25281,8 @@ export namespace Prisma {
     profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     is_paid?: BoolFieldUpdateOperationsInput | boolean
     payment_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiry_disabled?: BoolFieldUpdateOperationsInput | boolean
+    expiry_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     enrollments?: EnrollmentUncheckedUpdateManyWithoutUserNestedInput
     lockedContent?: LockedContentUncheckedUpdateManyWithoutUserNestedInput
     sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
@@ -25270,6 +25352,8 @@ export namespace Prisma {
     profile_image?: string | null
     is_paid?: boolean
     payment_date?: Date | string | null
+    expiry_disabled?: boolean
+    expiry_date?: Date | string | null
     enrollments?: EnrollmentCreateNestedManyWithoutUserInput
     LessonProgress?: LessonProgressCreateNestedManyWithoutUserInput
     sessions?: UserSessionCreateNestedManyWithoutUserInput
@@ -25296,6 +25380,8 @@ export namespace Prisma {
     profile_image?: string | null
     is_paid?: boolean
     payment_date?: Date | string | null
+    expiry_disabled?: boolean
+    expiry_date?: Date | string | null
     enrollments?: EnrollmentUncheckedCreateNestedManyWithoutUserInput
     LessonProgress?: LessonProgressUncheckedCreateNestedManyWithoutUserInput
     sessions?: UserSessionUncheckedCreateNestedManyWithoutUserInput
@@ -25338,6 +25424,8 @@ export namespace Prisma {
     profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     is_paid?: BoolFieldUpdateOperationsInput | boolean
     payment_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiry_disabled?: BoolFieldUpdateOperationsInput | boolean
+    expiry_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     enrollments?: EnrollmentUpdateManyWithoutUserNestedInput
     LessonProgress?: LessonProgressUpdateManyWithoutUserNestedInput
     sessions?: UserSessionUpdateManyWithoutUserNestedInput
@@ -25364,6 +25452,8 @@ export namespace Prisma {
     profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     is_paid?: BoolFieldUpdateOperationsInput | boolean
     payment_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiry_disabled?: BoolFieldUpdateOperationsInput | boolean
+    expiry_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     enrollments?: EnrollmentUncheckedUpdateManyWithoutUserNestedInput
     LessonProgress?: LessonProgressUncheckedUpdateManyWithoutUserNestedInput
     sessions?: UserSessionUncheckedUpdateManyWithoutUserNestedInput
@@ -25390,6 +25480,8 @@ export namespace Prisma {
     profile_image?: string | null
     is_paid?: boolean
     payment_date?: Date | string | null
+    expiry_disabled?: boolean
+    expiry_date?: Date | string | null
     enrollments?: EnrollmentCreateNestedManyWithoutUserInput
     LessonProgress?: LessonProgressCreateNestedManyWithoutUserInput
     lockedContent?: LockedContentCreateNestedManyWithoutUserInput
@@ -25416,6 +25508,8 @@ export namespace Prisma {
     profile_image?: string | null
     is_paid?: boolean
     payment_date?: Date | string | null
+    expiry_disabled?: boolean
+    expiry_date?: Date | string | null
     enrollments?: EnrollmentUncheckedCreateNestedManyWithoutUserInput
     LessonProgress?: LessonProgressUncheckedCreateNestedManyWithoutUserInput
     lockedContent?: LockedContentUncheckedCreateNestedManyWithoutUserInput
@@ -25458,6 +25552,8 @@ export namespace Prisma {
     profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     is_paid?: BoolFieldUpdateOperationsInput | boolean
     payment_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiry_disabled?: BoolFieldUpdateOperationsInput | boolean
+    expiry_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     enrollments?: EnrollmentUpdateManyWithoutUserNestedInput
     LessonProgress?: LessonProgressUpdateManyWithoutUserNestedInput
     lockedContent?: LockedContentUpdateManyWithoutUserNestedInput
@@ -25484,6 +25580,8 @@ export namespace Prisma {
     profile_image?: NullableStringFieldUpdateOperationsInput | string | null
     is_paid?: BoolFieldUpdateOperationsInput | boolean
     payment_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiry_disabled?: BoolFieldUpdateOperationsInput | boolean
+    expiry_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     enrollments?: EnrollmentUncheckedUpdateManyWithoutUserNestedInput
     LessonProgress?: LessonProgressUncheckedUpdateManyWithoutUserNestedInput
     lockedContent?: LockedContentUncheckedUpdateManyWithoutUserNestedInput

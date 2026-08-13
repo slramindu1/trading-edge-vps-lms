@@ -19,6 +19,9 @@ export default async function SettingsPage() {
       email: true,
       joined_date: true,
       profile_image: true,
+      payment_date: true,
+      expiry_date: true,
+      expiry_disabled: true,
     },
   });
 

@@ -10,6 +10,7 @@ interface ManifestUpdate {
   name: string;
   version: string;
   tier: string;
+  price?: number;
   description: string;
   longDescription: string;
   icon: string;
@@ -197,7 +198,7 @@ export function MasterPanel({ updates, flags, history, onFlagsChange }: Props) {
                           ? "bg-emerald-500/15 text-emerald-400"
                           : "bg-amber-500/15 text-amber-400"
                       )}>
-                        {update.tier}
+                        {update.tier === "FREE" ? "FREE" : (update.price ? `Rs. ${update.price}` : "PREMIUM")}
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground">{update.description}</p>

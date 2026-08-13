@@ -30,6 +30,7 @@ type ManifestUpdate = {
   name: string;
   version: string;
   tier: "FREE" | "PAID";
+  price?: number;
   description: string;
   longDescription: string;
   icon: string;
@@ -63,6 +64,7 @@ const STATIC_UPDATES: ManifestUpdate[] = [
     name: "Chapter Locking System",
     version: "1.0.0",
     tier: "PAID",
+    price: 3000,
     description: "Lock/unlock individual lessons, topics, chapters per student",
     longDescription: "Take full control of student access. Lock any lesson, topic or chapter for specific students. Perfect for phased course delivery or revoking access.",
     icon: "lock",
@@ -75,6 +77,7 @@ const STATIC_UPDATES: ManifestUpdate[] = [
     name: "Customizable Testimonial Tool",
     version: "1.0.0",
     tier: "PAID",
+    price: 3500,
     description: "Auto-generate beautiful testimonials on course completion",
     longDescription: "Reward your students with auto-generated completion testimonials. Fully customizable templates with student name, course name, date and your branding.",
     icon: "award",
@@ -87,6 +90,7 @@ const STATIC_UPDATES: ManifestUpdate[] = [
     name: "Automatic Student Deactivation",
     version: "1.0.0",
     tier: "PAID",
+    price: 1500,
     description: "Automatically deactivate student accounts after 1 year",
     longDescription: "Set it and forget it. Student accounts are automatically deactivated exactly 1 year after enrollment. Customizable duration and email warnings before deactivation.",
     icon: "timer",
@@ -110,7 +114,8 @@ const STATIC_UPDATES: ManifestUpdate[] = [
     id: "landing-new-code-optimization-update",
     name: "Landing Page Optimizations",
     version: "1.0.0",
-    tier: "FREE",
+    tier: "PAID",
+    price: 2500,
     description: "Caching and performance optimizations for the Landing Page.",
     longDescription: "Dramatically improves loading speed using Incremental Static Regeneration and Next.js Image optimizations.",
     icon: "timer",
@@ -122,7 +127,8 @@ const STATIC_UPDATES: ManifestUpdate[] = [
     id: "lms-new-code-optimization-update",
     name: "LMS Security & Performance Update",
     version: "1.0.0",
-    tier: "FREE",
+    tier: "PAID",
+    price: 5000,
     description: "Major security fixes and speed improvements for LMS.",
     longDescription: "Includes advanced error logging, database connection pooling to prevent crashes, backend pagination, and fixes for timezone and location mapping.",
     icon: "shield",
@@ -309,7 +315,7 @@ export function UpdatesPageClient({ isMaster, adminEmail, flags, history }: Prop
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-400 border border-amber-500/20">
-                        <Award className="w-3 h-3" /> PREMIUM
+                        <Award className="w-3 h-3" /> {update.price ? `Rs. ${update.price}` : "PREMIUM"}
                       </span>
                     )}
                     {installed ? (

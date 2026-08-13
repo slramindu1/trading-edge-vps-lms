@@ -35,6 +35,25 @@ export async function AddStudent(
             payment_date: new Date(),
           },
         });
+
+        // If user has no password yet, send a (new) password setup email
+        if (!existingUser.password) {
+          const token = crypto.randomUUID();
+          const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+          await prisma.user.update({
+            where: { email },
+            data: { verification_code: token, reset_token_expiry: expires },
+          });
+          const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/reset-password?token=${token}`;
+          const html = getResetPasswordEmailHtml(email, resetUrl);
+          await mailTransporter.sendMail({
+            from: `"TradingEdge LMS" <${process.env.SMTP_USER}>`,
+            to: email,
+            subject: "Set Your Password",
+            html,
+          });
+        }
+
         return {
           status: "success",
           message: "Existing student upgraded to PAID successfully!",
@@ -45,6 +64,7 @@ export async function AddStudent(
         message: "A user with this email already exists",
       };
     }
+
 
     // Create the user
     const user = await prisma.user.create({

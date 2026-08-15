@@ -28,8 +28,6 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/assets/og-image.png",
-        width: 1200,
-        height: 630,
         alt: "Trading Edge LMS",
       },
     ],

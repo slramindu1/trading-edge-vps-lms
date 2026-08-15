@@ -19,8 +19,21 @@ import "./globals.css";
 // No need to configure them manually
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://lms.tradingedgefx.com"),
   title: "Trading Edge",
   description: "Best Way To Learn Forex Trading Online",
+  openGraph: {
+    title: "Trading Edge",
+    description: "Best Way To Learn Forex Trading Online",
+    images: [
+      {
+        url: "/logo-dark.png",
+        width: 1200,
+        height: 630,
+        alt: "Trading Edge LMS",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({

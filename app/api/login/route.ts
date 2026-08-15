@@ -189,6 +189,17 @@ export async function POST(request: NextRequest) {
       path: "/",
     });
 
+    // Refresh device_id cookie expiry if it exists and was verified
+    if (securityEnabled && isDeviceVerified && deviceId) {
+      cookieStore.set("device_id", deviceId, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24 * 365 * 10,
+        path: "/",
+      });
+    }
+
     return NextResponse.json({
       message: "Login successful",
       user: {

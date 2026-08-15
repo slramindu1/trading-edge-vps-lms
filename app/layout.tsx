@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     description: "Best Way To Learn Forex Trading Online",
     images: [
       {
-        url: "/logo-dark.png",
+        url: "/assets/og-image.png",
         width: 1200,
         height: 630,
         alt: "Trading Edge LMS",

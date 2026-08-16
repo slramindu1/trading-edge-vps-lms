@@ -22,6 +22,7 @@ export default async function SettingsPage() {
       payment_date: true,
       expiry_date: true,
       expiry_disabled: true,
+      device_verification_enabled: true,
     },
   });
 
@@ -42,6 +43,7 @@ export default async function SettingsPage() {
       user={dbUser} 
       securityEnabled={securityEnabled} 
       autoDeactivationEnabled={autoDeactivationEnabled}
+      deviceVerificationEnabled={dbUser.device_verification_enabled}
     />
   );
 }

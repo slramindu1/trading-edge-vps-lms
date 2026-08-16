@@ -41,7 +41,10 @@ export async function POST(request: NextRequest) {
     
     let isDeviceVerified = false;
     
-    if (securityEnabled && deviceId) {
+    // If the user has disabled device verification for themselves, skip OTP
+    const userWantsVerification = user.device_verification_enabled ?? true;
+    
+    if (securityEnabled && deviceId && userWantsVerification) {
       const knownDevice = await prisma.userDevice.findUnique({
         where: { deviceId },
       });
@@ -58,7 +61,7 @@ export async function POST(request: NextRequest) {
     const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
     const ua = request.headers.get("user-agent") || "unknown";
 
-    if (securityEnabled && !isDeviceVerified) {
+    if (securityEnabled && userWantsVerification && !isDeviceVerified) {
       // Generate OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes

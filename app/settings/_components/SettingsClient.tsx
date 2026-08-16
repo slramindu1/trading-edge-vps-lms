@@ -32,9 +32,10 @@ interface SettingsClientProps {
   };
   securityEnabled?: boolean;
   autoDeactivationEnabled?: boolean;
+  deviceVerificationEnabled?: boolean;
 }
 
-export function SettingsClient({ user, securityEnabled = true, autoDeactivationEnabled = true }: SettingsClientProps) {
+export function SettingsClient({ user, securityEnabled = true, autoDeactivationEnabled = true, deviceVerificationEnabled = true }: SettingsClientProps) {
   const [activeTab, setActiveTab] = useState<Tab>("account");
   const [profileImage, setProfileImage] = useState<string | null>(user.profile_image);
   
@@ -142,7 +143,7 @@ export function SettingsClient({ user, securityEnabled = true, autoDeactivationE
               onSubscriptionClick={handleSubscriptionClick}
             />
           )}
-          {securityEnabled && activeTab === "security" && <SecurityTab />}
+          {securityEnabled && activeTab === "security" && <SecurityTab deviceVerificationEnabled={deviceVerificationEnabled} />}
           {securityEnabled && activeTab === "sessions" && <SessionsTab securityEnabled={securityEnabled} />}
           {activeTab === "data" && <DataTab user={user} autoDeactivationEnabled={autoDeactivationEnabled} />}
         </div>
@@ -323,7 +324,31 @@ function AccountTab({
   );
 }
 
-function SecurityTab() {
+function SecurityTab({ deviceVerificationEnabled = true }: { deviceVerificationEnabled?: boolean }) {
+  const [dvEnabled, setDvEnabled] = useState(deviceVerificationEnabled);
+  const [dvLoading, setDvLoading] = useState(false);
+
+  const handleToggleDeviceVerification = async () => {
+    const newValue = !dvEnabled;
+    setDvLoading(true);
+    try {
+      const res = await fetch("/api/users/device-verification", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: newValue }),
+      });
+      if (res.ok) {
+        setDvEnabled(newValue);
+        toast.success(newValue ? "Device verification enabled" : "Device verification disabled");
+      } else {
+        toast.error("Failed to update setting");
+      }
+    } catch {
+      toast.error("Network error");
+    } finally {
+      setDvLoading(false);
+    }
+  };
   const handleChangePassword = async () => {
     toast.loading("Redirecting to password reset...");
     try {
@@ -338,6 +363,26 @@ function SecurityTab() {
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
       <h2 className="text-2xl font-medium tracking-tight mb-10">Account security</h2>
       <div className="space-y-8">
+        <div className="flex items-center justify-between border-b border-neutral-800/50 pb-8">
+          <div>
+            <div className="text-base font-medium mb-1">Device verification (OTP)</div>
+            <div className="text-sm text-neutral-500 max-w-xs">When enabled, a one-time code is sent to your email on every new device login. Turn off if you find it inconvenient.</div>
+          </div>
+          <button
+            onClick={handleToggleDeviceVerification}
+            disabled={dvLoading}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none cursor-pointer ${
+              dvEnabled ? "bg-white" : "bg-neutral-700"
+            } ${dvLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+            aria-label="Toggle device verification"
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-black transition-transform ${
+                dvEnabled ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </button>
+        </div>
         <div className="flex items-center justify-between border-b border-neutral-800/50 pb-8">
           <div>
             <div className="text-base font-medium mb-1">Login with password</div>

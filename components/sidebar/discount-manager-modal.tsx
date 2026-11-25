@@ -9,13 +9,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Calendar, Loader2, Pencil, Percent, Plus, Tag, Trash2, X } from "lucide-react";
+import {
+  Calendar,
+  Loader2,
+  Pencil,
+  Percent,
+  Tag,
+  Trash2,
+} from "lucide-react";
 
 interface DiscountItem {
   id: string;
@@ -44,24 +49,40 @@ function formatDisplayDate(iso: string | null): string {
   if (!iso) return "—";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleDateString("en-CA"); // YYYY-MM-DD
+  return d.toLocaleDateString("en-CA");
 }
 
 function getDiscountStatus(item: DiscountItem): {
   label: string;
-  variant: "default" | "secondary" | "destructive" | "outline";
+  className: string;
 } {
   if (!item.isActive) {
-    return { label: "Disabled", variant: "secondary" };
+    return {
+      label: "Disabled",
+      className:
+        "bg-zinc-500/15 text-zinc-400 border-zinc-500/25",
+    };
   }
   const now = new Date();
   if (item.startsAt && now < new Date(item.startsAt)) {
-    return { label: "Scheduled", variant: "outline" };
+    return {
+      label: "Scheduled",
+      className:
+        "bg-amber-500/15 text-amber-400 border-amber-500/25",
+    };
   }
   if (item.expiresAt && now > new Date(item.expiresAt)) {
-    return { label: "Expired", variant: "destructive" };
+    return {
+      label: "Expired",
+      className:
+        "bg-rose-500/15 text-rose-400 border-rose-500/25",
+    };
   }
-  return { label: "Active", variant: "default" };
+  return {
+    label: "Active",
+    className:
+      "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
+  };
 }
 
 export function DiscountManagerModal({
@@ -134,7 +155,11 @@ export function DiscountManagerModal({
       toast.error("Please enter a discount name / code");
       return;
     }
-    if (!Number.isFinite(numericDiscount) || numericDiscount <= 0 || numericDiscount > 100) {
+    if (
+      !Number.isFinite(numericDiscount) ||
+      numericDiscount <= 0 ||
+      numericDiscount > 100
+    ) {
       toast.error("Discount percentage must be between 1 and 100");
       return;
     }
@@ -177,9 +202,12 @@ export function DiscountManagerModal({
 
   const handleDelete = async (id: string, name: string) => {
     try {
-      const res = await fetch(`/api/admin/discounts?id=${encodeURIComponent(id)}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `/api/admin/discounts?id=${encodeURIComponent(id)}`,
+        {
+          method: "DELETE",
+        }
+      );
       const data = await res.json();
       if (!res.ok) {
         toast.error(data.error || "Failed to delete discount");
@@ -197,37 +225,66 @@ export function DiscountManagerModal({
     (d) => getDiscountStatus(d).label === "Active"
   ).length;
 
+  const pillInputWrapper =
+    "relative flex items-center rounded-full border border-border/80 dark:border-white/10 bg-muted/40 dark:bg-white/[0.03] px-4 h-11 transition-all focus-within:border-indigo-500 focus-within:ring-4 focus-within:ring-indigo-500/15";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg">
-            <Tag className="w-5 h-5 text-primary" />
-            {editingId ? "Edit Discount" : "Add Discount"}
-          </DialogTitle>
-          <DialogDescription>
-            Create or manage discount codes and their valid date periods.
-          </DialogDescription>
+      <DialogContent className="sm:max-w-[540px] max-h-[90vh] flex flex-col overflow-hidden rounded-3xl border border-border/80 dark:border-white/10 bg-background dark:bg-[#111318] p-6 sm:p-7 shadow-2xl [&>button]:cursor-pointer [&>button]:top-6 [&>button]:right-6">
+        {/* Top Icon + Title + Description (matching reference design) */}
+        <DialogHeader className="text-left space-y-3">
+          <div className="w-11 h-11 rounded-full bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+            {editingId ? (
+              <Pencil className="w-5 h-5" />
+            ) : (
+              <Tag className="w-5 h-5" />
+            )}
+          </div>
+          <div className="space-y-1">
+            <DialogTitle className="text-xl font-bold tracking-tight">
+              {editingId ? "Edit Discount" : "Add Discount"}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground leading-relaxed">
+              Create promo discounts with a valid date range, or edit existing
+              discounts from the summary below.
+            </DialogDescription>
+          </div>
         </DialogHeader>
 
-        {/* Add / Edit Form */}
-        <form onSubmit={handleSubmit} className="space-y-4 pt-1">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="space-y-1.5">
-              <Label htmlFor="discount-code">Discount Name / Code</Label>
-              <Input
-                id="discount-code"
-                placeholder="e.g. BLACKFRIDAY30"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                required
-              />
+              <Label
+                htmlFor="discount-code"
+                className="text-xs font-medium text-foreground/90 pl-1"
+              >
+                Discount Name
+              </Label>
+              <div className={pillInputWrapper}>
+                <Tag className="w-4 h-4 text-muted-foreground shrink-0 mr-2.5" />
+                <input
+                  id="discount-code"
+                  type="text"
+                  placeholder="e.g. BLACKFRIDAY30"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
+                  required
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="discount-percent">Discount (%)</Label>
-              <div className="relative">
-                <Input
+              <Label
+                htmlFor="discount-percent"
+                className="text-xs font-medium text-foreground/90 pl-1"
+              >
+                Discount (%)
+              </Label>
+              <div className={pillInputWrapper}>
+                <Percent className="w-4 h-4 text-muted-foreground shrink-0 mr-2.5" />
+                <input
                   id="discount-percent"
                   type="number"
                   min={1}
@@ -236,162 +293,190 @@ export function DiscountManagerModal({
                   placeholder="e.g. 30"
                   value={discountPercent}
                   onChange={(e) => setDiscountPercent(e.target.value)}
-                  className="pr-8"
+                  className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/60"
                   required
                 />
-                <Percent className="w-4 h-4 text-muted-foreground absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="space-y-1.5">
-              <Label htmlFor="discount-from" className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+              <Label
+                htmlFor="discount-from"
+                className="text-xs font-medium text-foreground/90 pl-1"
+              >
                 Valid From
               </Label>
-              <Input
-                id="discount-from"
-                type="date"
-                value={startsAt}
-                onChange={(e) => setStartsAt(e.target.value)}
-              />
+              <div className={pillInputWrapper}>
+                <Calendar className="w-4 h-4 text-muted-foreground shrink-0 mr-2.5" />
+                <input
+                  id="discount-from"
+                  type="date"
+                  value={startsAt}
+                  onChange={(e) => setStartsAt(e.target.value)}
+                  className="w-full bg-transparent text-sm outline-none cursor-pointer dark:[color-scheme:dark]"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="discount-to" className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+              <Label
+                htmlFor="discount-to"
+                className="text-xs font-medium text-foreground/90 pl-1"
+              >
                 Valid To
               </Label>
-              <Input
-                id="discount-to"
-                type="date"
-                value={expiresAt}
-                onChange={(e) => setExpiresAt(e.target.value)}
-              />
+              <div className={pillInputWrapper}>
+                <Calendar className="w-4 h-4 text-muted-foreground shrink-0 mr-2.5" />
+                <input
+                  id="discount-to"
+                  type="date"
+                  value={expiresAt}
+                  onChange={(e) => setExpiresAt(e.target.value)}
+                  className="w-full bg-transparent text-sm outline-none cursor-pointer dark:[color-scheme:dark]"
+                />
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-            <div className="flex items-center gap-2">
+          {/* Active Switch + Pill Action Buttons */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div className="flex items-center gap-2.5 pl-1">
               <Switch
                 id="discount-active"
                 checked={isActive}
                 onCheckedChange={setIsActive}
+                className="cursor-pointer"
               />
-              <Label htmlFor="discount-active" className="cursor-pointer">
+              <Label
+                htmlFor="discount-active"
+                className="text-sm font-medium cursor-pointer"
+              >
                 Active
               </Label>
             </div>
 
-            <div className="flex items-center gap-2">
-              {editingId && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={resetForm}
-                >
-                  <X className="w-4 h-4 mr-1" />
-                  Cancel Edit
-                </Button>
-              )}
-              <Button type="submit" size="sm" disabled={submitting}>
-                {submitting ? (
+            <div className="flex items-center gap-2.5 ml-auto">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => (editingId ? resetForm() : onOpenChange(false))}
+                className="rounded-full px-5 h-10 border-border/80 dark:border-white/15 bg-transparent hover:bg-muted/50 cursor-pointer"
+              >
+                {editingId ? "Cancel Edit" : "Cancel"}
+              </Button>
+              <Button
+                type="submit"
+                disabled={submitting}
+                className="rounded-full px-6 h-10 bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-lg shadow-indigo-500/20 cursor-pointer"
+              >
+                {submitting && (
                   <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
-                ) : editingId ? (
-                  <Pencil className="w-4 h-4 mr-1.5" />
-                ) : (
-                  <Plus className="w-4 h-4 mr-1.5" />
                 )}
-                {editingId ? "Update Discount" : "Add Discount"}
+                {editingId ? "Update" : "Save Discount"}
               </Button>
             </div>
           </div>
         </form>
 
-        <Separator className="my-2" />
-
-        {/* Summary Section */}
-        <div className="flex items-center justify-between text-sm">
-          <span className="font-semibold">Discount Summary</span>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Badge variant="outline">Total: {discounts.length}</Badge>
-            <Badge variant="default">Active: {activeCount}</Badge>
+        {/* Summary List */}
+        <div className="mt-4 pt-4 border-t border-border/70 dark:border-white/10 flex flex-col min-h-0 flex-1">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Added Discounts Summary
+            </span>
+            <div className="flex items-center gap-1.5">
+              <Badge
+                variant="outline"
+                className="rounded-full text-[11px] font-medium px-2.5 py-0.5 dark:border-white/15"
+              >
+                Total: {discounts.length}
+              </Badge>
+              <Badge
+                variant="outline"
+                className="rounded-full text-[11px] font-medium px-2.5 py-0.5 bg-emerald-500/10 text-emerald-400 border-emerald-500/25"
+              >
+                Active: {activeCount}
+              </Badge>
+            </div>
           </div>
-        </div>
 
-        <div className="flex-1 overflow-y-auto pr-1 space-y-2 min-h-[160px] max-h-[260px]">
-          {loading ? (
-            <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Loading discounts...
-            </div>
-          ) : discounts.length === 0 ? (
-            <div className="text-center py-8 text-sm text-muted-foreground border border-dashed rounded-md">
-              No discounts added yet.
-            </div>
-          ) : (
-            discounts.map((item) => {
-              const status = getDiscountStatus(item);
-              const isBeingEdited = editingId === item.id;
-              return (
-                <div
-                  key={item.id}
-                  className={`flex items-center justify-between gap-3 p-3 rounded-lg border text-sm transition-colors ${
-                    isBeingEdited
-                      ? "border-primary bg-primary/5"
-                      : "border-border bg-card/50"
-                  }`}
-                >
-                  <div className="min-w-0 space-y-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold tracking-wide truncate">
-                        {item.code}
-                      </span>
-                      <Badge variant="secondary" className="font-semibold">
-                        {item.discount}% OFF
-                      </Badge>
-                      <Badge variant={status.variant}>{status.label}</Badge>
+          <div className="flex-1 overflow-y-auto pr-1 space-y-2 min-h-[140px] max-h-[220px]">
+            {loading ? (
+              <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Loading discounts...
+              </div>
+            ) : discounts.length === 0 ? (
+              <div className="text-center py-7 text-sm text-muted-foreground border border-dashed border-border/70 dark:border-white/10 rounded-2xl">
+                No discounts added yet.
+              </div>
+            ) : (
+              discounts.map((item) => {
+                const status = getDiscountStatus(item);
+                const isBeingEdited = editingId === item.id;
+                return (
+                  <div
+                    key={item.id}
+                    className={`flex items-center justify-between gap-3 px-4 py-3 rounded-2xl border text-sm transition-all ${
+                      isBeingEdited
+                        ? "border-indigo-500 bg-indigo-500/10"
+                        : "border-border/70 dark:border-white/10 bg-muted/30 dark:bg-white/[0.02] hover:bg-muted/50 dark:hover:bg-white/[0.04]"
+                    }`}
+                  >
+                    <div className="min-w-0 space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold tracking-wide truncate">
+                          {item.code}
+                        </span>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">
+                          {item.discount}% OFF
+                        </span>
+                        <span
+                          className={`text-[11px] font-medium px-2 py-0.5 rounded-full border ${status.className}`}
+                        >
+                          {status.label}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-xs text-muted-foreground flex-wrap">
+                        <span>
+                          {item.startsAt || item.expiresAt
+                            ? `${formatDisplayDate(item.startsAt)} → ${formatDisplayDate(item.expiresAt)}`
+                            : "Always valid"}
+                        </span>
+                        <span>•</span>
+                        <span>Used: {item.usedCount}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
-                      <span>
-                        Period:{" "}
-                        {item.startsAt || item.expiresAt
-                          ? `${formatDisplayDate(item.startsAt)} → ${formatDisplayDate(item.expiresAt)}`
-                          : "Always valid"}
-                      </span>
-                      <span>•</span>
-                      <span>Used: {item.usedCount}</span>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full hover:bg-indigo-500/15 hover:text-indigo-400 cursor-pointer"
+                        title="Edit discount"
+                        onClick={() => handleEditClick(item)}
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full text-rose-400 hover:bg-rose-500/15 hover:text-rose-400 cursor-pointer"
+                        title="Delete discount"
+                        onClick={() => handleDelete(item.id, item.code)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      title="Edit discount"
-                      onClick={() => handleEditClick(item)}
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive hover:text-destructive"
-                      title="Delete discount"
-                      onClick={() => handleDelete(item.id, item.code)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              );
-            })
-          )}
+                );
+              })
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

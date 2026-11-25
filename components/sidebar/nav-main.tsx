@@ -48,13 +48,17 @@ export function NavMain({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               {item.onClick ? (
-                <SidebarMenuButton tooltip={item.title} onClick={item.onClick}>
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  onClick={item.onClick}
+                  className="cursor-pointer"
+                >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </SidebarMenuButton>
               ) : (
-                <SidebarMenuButton tooltip={item.title} asChild>
-                  <Link href={item.url} target={item.target} className={cn(pathname === item.url  && 'bg-accent text-accent-foreground')}>
+                <SidebarMenuButton tooltip={item.title} className="cursor-pointer" asChild>
+                  <Link href={item.url} target={item.target} className={cn("cursor-pointer", pathname === item.url && 'bg-accent text-accent-foreground')}>
                     {item.icon && <item.icon className={cn(pathname === item.url && "text-primary" )}/>}
                     <span>{item.title}</span>
                   </Link>

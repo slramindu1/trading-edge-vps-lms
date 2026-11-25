@@ -137,13 +137,14 @@ model Topic {
 }
 
 model Coupon {
-  id        String   @id @default(cuid())
-  code      String   @unique
+  id        String    @id @default(cuid())
+  code      String    @unique
   discount  Float
   maxUses   Int?
-  usedCount Int      @default(0)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+  usedCount Int       @default(0)
+  isActive  Boolean   @default(true)
+  startsAt  DateTime?
+  createdAt DateTime  @default(now())
   expiresAt DateTime?
   
   @@map("coupons")

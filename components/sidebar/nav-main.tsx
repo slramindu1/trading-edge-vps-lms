@@ -20,6 +20,7 @@ export function NavMain({
     url: string;
     icon?: Icon;
     target?: string;
+    onClick?: () => void;
   }[];
 }) {
   const pathname = usePathname();
@@ -46,12 +47,19 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title} asChild>
-                <Link href={item.url} target={item.target} className={cn(pathname === item.url  && 'bg-accent text-accent-foreground')}>
-                  {item.icon && <item.icon className={cn(pathname === item.url && "text-primary" )}/>}
+              {item.onClick ? (
+                <SidebarMenuButton tooltip={item.title} onClick={item.onClick}>
+                  {item.icon && <item.icon />}
                   <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton tooltip={item.title} asChild>
+                  <Link href={item.url} target={item.target} className={cn(pathname === item.url  && 'bg-accent text-accent-foreground')}>
+                    {item.icon && <item.icon className={cn(pathname === item.url && "text-primary" )}/>}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>

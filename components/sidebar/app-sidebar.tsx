@@ -8,6 +8,7 @@ import {
   IconSettings,
   IconUsers,
   IconBrush,
+  IconDiscount2,
   type Icon as TablerIcon,
 } from "@tabler/icons-react";
 import { Download } from "lucide-react";
@@ -15,6 +16,7 @@ import { Download } from "lucide-react";
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavSecondary } from "@/components/sidebar/nav-secondary";
 import { NavUser } from "@/components/sidebar/nav-user";
+import { DiscountManagerModal } from "@/components/sidebar/discount-manager-modal";
 
 import {
   Sidebar,
@@ -105,41 +107,60 @@ export function AppSidebar({ user, settingsEnabled = true, testimonialEnabled = 
 
   // Prevent hydration mismatch
   const [mounted, setMounted] = React.useState(false);
+  const [discountModalOpen, setDiscountModalOpen] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
 
   if (!mounted) return null;
 
+  const sidebarItems = [
+    ...navMainItems.filter(
+      (item) => item.title !== "Testimonial Builder" || testimonialEnabled
+    ),
+    {
+      title: "Add Discount",
+      url: "#",
+      icon: IconDiscount2 as TablerIcon,
+      onClick: () => setDiscountModalOpen(true),
+    },
+  ];
+
   const logoSrc = resolvedTheme === "dark" ? LogoDark : LogoLight;
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-slot=sidebar-menu-button]:!p-1.5"
-            >
-              <Link href="/admin">
-                <Image
-                  src={logoSrc}
-                  alt="logo"
-                  width={196}
-                  height={186}
-                  priority
-                />
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={navMainItems.filter(item => item.title !== "Testimonial Builder" || testimonialEnabled)} />
-        <NavSecondary items={navSecondaryItems.filter(item => item.title !== "Settings" || settingsEnabled)} className="mt-auto" />
+    <>
+      <Sidebar collapsible="offcanvas" {...props}>
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                className="data-slot=sidebar-menu-button]:!p-1.5"
+              >
+                <Link href="/admin">
+                  <Image
+                    src={logoSrc}
+                    alt="logo"
+                    width={196}
+                    height={186}
+                    priority
+                  />
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
+        <SidebarContent>
+          <NavMain items={sidebarItems} />
+          <NavSecondary items={navSecondaryItems.filter(item => item.title !== "Settings" || settingsEnabled)} className="mt-auto" />
 
-      </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={currentUser} settingsEnabled={settingsEnabled} />
-      </SidebarFooter>
-    </Sidebar>
+        </SidebarContent>
+        <SidebarFooter>
+          <NavUser user={currentUser} settingsEnabled={settingsEnabled} />
+        </SidebarFooter>
+      </Sidebar>
+      <DiscountManagerModal
+        open={discountModalOpen}
+        onOpenChange={setDiscountModalOpen}
+      />
+    </>
   );
 }
